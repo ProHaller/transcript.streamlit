@@ -3,7 +3,7 @@ import streamlit as st
 from openai import OpenAI
 
 with st.sidebar:
-    st.title('🤖💬 OpenAI Chatbot')
+    st.title('🤖💬 OpenAI Whisper')
     if 'OPENAI_API_KEY' in st.secrets:
         st.success('API key already provided!', icon='✅')
         openai.api_key = st.secrets['OPENAI_API_KEY']
@@ -28,7 +28,8 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
-        for response in openai.ChatCompletion.create(
+        client = OpenAI()
+        for response in client.chat.completions.create(
             model="gpt-4-1106-preview",
             messages=[{"role": m["role"], "content": m["content"]}
                       for m in st.session_state.messages], stream=True):
