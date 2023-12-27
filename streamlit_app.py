@@ -14,6 +14,10 @@ with st.sidebar:
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
     uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
+    if uploaded_files:
+        if transcribe := st.button("Transcribe"):
+            st.write("Transcribed")
+
 
 
 if "messages" not in st.session_state:
