@@ -2,6 +2,18 @@ import openai
 import streamlit as st
 from openai import OpenAI
 
+
+def transcription(file):
+    client = OpenAI()
+    transcription_data = client.audio.transcriptions.create(
+        model="whisper-1",
+        file=file,
+        language="en",
+        prompt="",
+        response_format="text",
+    )
+    st.markdown(f"transcription: \n{transcription_data}")
+
 with st.sidebar:
     st.title('🤖💬 OpenAI Whisper')
     if 'OPENAI_API_KEY' in st.secrets:
@@ -15,32 +27,8 @@ with st.sidebar:
             st.success('Proceed to entering your prompt message!', icon='👉')
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file:
+        st.audio(uploaded_file)
         if transcribe := st.button("Transcribe"):
-            st.audio(uploaded_file)
-            st.write(f"Transcribing {uploaded_file.name}")
+            transcription(uploaded_file)
 
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("What is up?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
-        client = OpenAI()
-        for response in client.chat.completions.create(
-            model="gpt-4-1106-preview",
-            messages=[{"role": m["role"], "content": m["content"]}
-                      for m in st.session_state.messages], stream=True):
-            if response.choices[0].delta.content is not None:
-                full_response += response.choices[0].delta.content
-            message_placeholder.markdown(full_response + "▌")
-        message_placeholder.markdown(full_response)
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
