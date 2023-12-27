@@ -13,7 +13,7 @@ with st.sidebar:
             st.warning('Please enter your credentials!', icon='⚠️')
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
-            uploaded_file = st.file_uploader("Choose a file to transcribe")
+    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
 
 
 if "messages" not in st.session_state:
