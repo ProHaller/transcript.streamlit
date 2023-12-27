@@ -13,10 +13,10 @@ with st.sidebar:
             st.warning('Please enter your credentials!', icon='⚠️')
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
-    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
-    if uploaded_files:
+    uploaded_file = st.file_uploader("Choose a file")
+    if uploaded_file:
         if transcribe := st.button("Transcribe"):
-            st.write("Transcribed")
+            st.write(f"Transcribing {uploaded_file}")
 
 
 
