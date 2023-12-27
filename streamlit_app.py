@@ -16,8 +16,7 @@ with st.sidebar:
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file:
         if transcribe := st.button("Transcribe"):
-            st.write(f"Transcribing {uploaded_file}")
-
+            st.write(f"Transcribing {uploaded_file.name}")
 
 
 if "messages" not in st.session_state:
