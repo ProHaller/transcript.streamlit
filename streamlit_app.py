@@ -8,7 +8,7 @@ def transcription(file):
     transcription_data = client.audio.transcriptions.create(
         model="whisper-1",
         file=file,
-        language="en",
+        language="",
         prompt="",
         response_format="text",
     )
@@ -17,7 +17,7 @@ def transcription(file):
 with st.sidebar:
     st.title('🤖💬 OpenAI Whisper')
     if 'OPENAI_API_KEY' in st.secrets:
-        st.success('API key already provided!', icon='✅')
+        st.success('API key is provided!', icon='✅')
         openai.api_key = st.secrets['OPENAI_API_KEY']
     else:
         openai.api_key = st.text_input('Enter OpenAI API token:', type='password')
@@ -25,7 +25,7 @@ with st.sidebar:
             st.warning('Please enter your credentials!', icon='⚠️')
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
-    uploaded_file = st.file_uploader("Choose a file")
+    uploaded_file = st.file_uploader("Choose a file ⬇️")
     if uploaded_file:
         st.audio(uploaded_file)
         if transcribe := st.button("Transcribe"):
@@ -34,3 +34,5 @@ with st.sidebar:
 st.markdown("# Transcription:")
 if transcription_text:
     st.write(transcription_text)
+else:
+    st.empty
