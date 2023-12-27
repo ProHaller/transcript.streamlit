@@ -1,3 +1,5 @@
+import os
+
 import openai
 import streamlit as st
 from openai import OpenAI
@@ -26,13 +28,12 @@ with st.sidebar:
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
     uploaded_file = st.file_uploader("Choose a file ⬇️")
+    transcription_text = ""
     if uploaded_file:
         st.audio(uploaded_file)
-        if transcribe := st.button("Transcribe"):
+        if st.button("Transcribe"):
             transcription_text = transcription(uploaded_file)
 
 st.markdown("# Transcription:")
-if not transcription_text:
-    st.empty
-else:
+if transcription_text:
     st.write(transcription_text)
