@@ -29,8 +29,8 @@ with st.sidebar:
     if uploaded_file:
         st.audio(uploaded_file)
         if transcribe := st.button("Transcribe"):
-            transcription = transcription(uploaded_file)
+            transcription_text = transcription(uploaded_file)
 
 st.markdown("# Transcription:")
-if transcription:
-    st.write(transcription)
+if transcription_text:
+    st.write(transcription_text)
