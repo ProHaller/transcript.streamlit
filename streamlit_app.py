@@ -65,6 +65,7 @@ with st.sidebar:
                 "French": "fr",
                 "Thai": "th",
                 "Arabic": "ar",
+                "Chinese": "zh",
                 "Korean": "ko",
             }
             language = st.selectbox(
