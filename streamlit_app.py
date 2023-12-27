@@ -32,7 +32,7 @@ with st.sidebar:
             transcription_text = transcription(uploaded_file)
 
 st.markdown("# Transcription:")
-if transcription_text:
-    st.write(transcription_text)
-else:
+if not transcription_text:
     st.empty
+else:
+    st.write(transcription_text)
