@@ -12,7 +12,7 @@ def transcription(file):
         prompt="",
         response_format="text",
     )
-    st.markdown(f"transcription: \n{transcription_data}")
+    return transcription_data
 
 with st.sidebar:
     st.title('🤖💬 OpenAI Whisper')
@@ -31,4 +31,4 @@ with st.sidebar:
         if transcribe := st.button("Transcribe"):
             transcription(uploaded_file)
 
-
+transcription_data
