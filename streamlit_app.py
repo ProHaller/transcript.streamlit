@@ -31,5 +31,6 @@ with st.sidebar:
         if transcribe := st.button("Transcribe"):
             transcription = transcription(uploaded_file)
 
-st.markdown("# Hello this is _markdown_.")
-st.write(transcription)
+st.markdown("# Transcription:")
+if transcription:
+    st.write(transcription)
