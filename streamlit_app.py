@@ -57,7 +57,9 @@ with st.sidebar:
     tab1, tab2 = st.tabs(["Transcription", "Text processing"])
     with tab1:
         st.header("Upload an audio file")
-        uploaded_file = st.file_uploader("Choose an audio file ⬇️")
+        uploaded_file = st.file_uploader(
+            "Choose an audio file ⬇️", type=["mp3", "wav", "m4a"]
+        )
         transcription_text = ""
         if uploaded_file:
             st.audio(uploaded_file)
