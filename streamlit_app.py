@@ -98,7 +98,7 @@ with st.sidebar:
                     if response_format
                     else ".txt",
                 )
-                "You can now process the text with the 'process text' tab."
+                "You can now process the text with the 'Text processing' tab."
     with tab2:
         st.header("Process the Text:")
         completion_text = ""
