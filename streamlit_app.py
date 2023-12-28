@@ -132,9 +132,11 @@ with st.sidebar:
                 st.download_button(
                     label="Download text",
                     data=completion_text,
-                    file_name=uploaded_file.name.rsplit(".", 1)[0]
-                    + "_processed"
-                    + ".txt",
+                    file_name=(
+                        uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
+                        if uploaded_file
+                        else "Processed_text.txt"
+                    ),
                 )
 
 if st.session_state["transcription_text"]:
