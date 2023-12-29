@@ -193,9 +193,9 @@ if st.session_state["transcription_text"]:
     st.download_button(
         label="Download transcription",
         data=st.session_state["transcription_text"],
-        file_name=uploaded_file.name.rsplit(".", 1)[0] + "_transcription" + ".srt"
-        if response_format
-        else ".txt",
+        file_name=uploaded_file.name.rsplit(".", 1)[0]
+        + "_transcription"
+        + (".srt" if response_format == "srt" else ".txt"),
     )
     "You can now process the text with the 'Text processing' tab."
     st.markdown("# Transcription:")
