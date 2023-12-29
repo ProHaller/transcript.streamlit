@@ -1,9 +1,12 @@
 import os
+from concurrent.futures import ThreadPoolExecutor
 from logging import PlaceHolder
+from tempfile import mkdtemp
 
 import openai
 import streamlit as st
 from openai import OpenAI
+from pydub import AudioSegment
 
 
 def display_readme():
@@ -46,15 +49,18 @@ if not st.session_state["readme_displayed"]:
     st.session_state["readme_displayed"] = True
 
 
-def transcription(file, language="en", prompt="", response_format="text"):
+def transcription(file_path, language="en", prompt="", response_format="text"):
     client = OpenAI()
-    transcription_data = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=file,
-        language=language,
-        prompt=prompt,
-        response_format=response_format,
-    )
+
+    # Open the file and pass the file handle directly
+    with open(file_path, "rb") as file_handle:
+        transcription_data = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=file_handle,  # Pass the file handle
+            language=language,
+            prompt=prompt,
+            response_format=response_format,
+        )
     return transcription_data
 
 
@@ -72,6 +78,54 @@ def get_prompt_choice():
             key for key, value in prompt_options.items() if value == x
         ][0],
     )
+
+
+# Function to segment the audio file
+def segment_audio(uploaded_file, segment_duration=60000):  # Duration in milliseconds
+    temp_dir = mkdtemp()  # Create a temporary directory
+    temp_file_path = os.path.join(temp_dir, uploaded_file.name)
+
+    with open(temp_file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    audio = AudioSegment.from_file(temp_file_path)
+    segments = []
+    for i in range(0, len(audio), segment_duration):
+        segment = audio[i : i + segment_duration]
+        segment_file_path = os.path.join(temp_dir, f"segment_{i//segment_duration}.mp3")
+        segment.export(segment_file_path, format="mp3")
+        segments.append(segment_file_path)
+    return segments
+
+
+# Function for parallel audio transcription
+def parallel_transcribe_audio(
+    file_paths, language, prompt, response_format, max_workers=10
+):
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(
+                transcription, file_path, language, prompt, response_format
+            ): i
+            for i, file_path in enumerate(file_paths)
+        }
+
+    transcriptions = {}
+    for future in futures:
+        try:
+            transcription_data = future.result()
+            index = futures[future]
+            transcriptions[index] = transcription_data
+        except Exception as e:
+            st.error(f"An error occurred during transcription: {e}")
+
+    sorted_transcription_texts = [
+        transcriptions[i]
+        for i in sorted(transcriptions)
+        if transcriptions[i] is not None
+    ]
+    full_transcript = " ".join(sorted_transcription_texts)
+    return full_transcript
 
 
 def openai_completion(
@@ -138,9 +192,20 @@ with st.sidebar:
     with tab1:
         st.header("Upload an audio file")
         uploaded_file = st.file_uploader(
-            "Choose an audio file ⬇️", type=["mp3", "wav", "m4a"]
+            "Choose an audio file ⬇️",
+            type=[
+                "flac",
+                "m4a",
+                "mp3",
+                "mp4",
+                "mpeg",
+                "mpga",
+                "oga",
+                "ogg",
+                "wav",
+                "webm",
+            ],
         )
-        transcription_text = ""
         if uploaded_file:
             st.audio(uploaded_file)
             language = get_language_choice()
@@ -152,8 +217,9 @@ with st.sidebar:
             )
             if st.button("Transcribe"):
                 with st.spinner("Wait for it... our AI is flexing its muscles!"):
-                    st.session_state["transcription_text"] = transcription(
-                        uploaded_file, language, prompt, response_format
+                    segment_paths = segment_audio(uploaded_file)
+                    st.session_state["transcription_text"] = parallel_transcribe_audio(
+                        segment_paths, language, prompt, response_format
                     )
                 st.success("Done!")
     with tab2:
@@ -195,7 +261,7 @@ if st.session_state["transcription_text"]:
         data=st.session_state["transcription_text"],
         file_name=uploaded_file.name.rsplit(".", 1)[0]
         + "_transcription"
-        + (".srt" if response_format == "srt" else ".txt"),
+        + (".srt" if tab1.response_format is True else ".txt"),
     )
     "You can now process the text with the 'Text processing' tab."
     st.markdown("# Transcription:")
