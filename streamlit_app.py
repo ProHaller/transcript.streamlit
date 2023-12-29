@@ -12,30 +12,29 @@ def display_readme():
     st.image("static/pointing.png", width=300)
     st.markdown(
         """
+### ↖️ Mobile Users may need to open the side panel
 # 🤖💬 Welcome to Roland Tools
 
-This application utilizes OpenAI's powerful models for audio transcription and text processing. To get started, please follow these simple steps:
-
-### Mobile Users may need to open the side panel ↖️ 
+This app transcribes audio and processes text using AI. To use it, just follow these steps.
 
 ## Using the App
 ### Transcription
-- **Upload an Audio File**: Choose an audio file (mp3, wav, or m4a format).
-- **Choose the Language**: Select the language of the audio file.
-- **Optional Description**: Provide a brief description of the audio and the unusual vocabulary for better context and transcription.
-- **Transcription Format**: Choose between plain text or subtitles (SRT format).
-- **Transcribe**: Click the 'Transcribe' button to start the transcription process.
+1. **Upload an Audio File**: Choose an audio file (mp3, wav, or m4a format).
+2. **Choose the Language**: Select the language of the audio file.
+3. **Optional Description**: Provide a brief description of the audio and the unusual vocabulary for better context and transcription.
+4. **Transcription Format**: Choose between plain text or subtitles (SRT format).
+5. **Transcribe**: Click the 'Transcribe' button to start the transcription process.
 
 ### Text Processing
-- **Input Your Prompt**: Type or paste the text you want to process in the text area.
-- **Choose a Model**: Select either GPT-4 or GPT-3.5 based on your preference.
-- **Set the Temperature**: Adjust the slider to set the model's creativity.
-- **Process Text**: Click the 'Process text' button to start.
+6. **Input Your Prompt**: Type or paste the text you want to process in the text area or chose a prepared prompt.
+7. **Choose a Model**: Select either GPT-4 or GPT-3.5 based on your preference.
+8. **Set the Temperature**: Adjust the slider to set the model's creativity.
+9. **Process Text**: Click the 'Process text' button to start.
 
 ## Download Results
-- After transcription or text processing, you can download the results using the 'Download' button.
+10. After transcription or text processing, you can download the results using the 'Download' button.
 
-Enjoy your experience with Roland Tools! If you have any questions or feedback, please feel free to reach out.
+I hope you'll enjoy the first of Roland Tools! If you have any questions or feedback, please feel free to reach out at **Roland.Haller@tsunagaru.co.jp** .
     """
     )
 
@@ -67,7 +66,7 @@ def transcription(file_path, language="en", prompt="", response_format="text"):
 def get_prompt_choice():
     prompt_options = {
         "None": "",
-        "Summary": "Summaries the main points of the text into a concise report.",
+        "Summary": "From the transcript provided, summarize the main points of the text into a concise report.",
         "Meeting minutes": "From the meeting transcript provided, create the meeting minutes.",
         "Make notes": "From the transcript provided, create a structured note in markdown.",
     }
@@ -231,7 +230,12 @@ with st.sidebar:
             horizontal=True,
         )
         temperature = st.slider(
-            "Temperature", min_value=0.1, max_value=1.0, value=0.7, step=0.1
+            "Temperature",
+            min_value=0.1,
+            max_value=1.0,
+            value=0.7,
+            step=0.1,
+            help="0 for serious, 1 for creative",
         )
         process_button = st.button("Process text")
 
