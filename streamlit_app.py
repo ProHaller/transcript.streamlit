@@ -1,6 +1,5 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
-from logging import PlaceHolder
 from tempfile import mkdtemp
 
 import openai
@@ -290,4 +289,3 @@ if completion_text:
     st.markdown("# Processed Text:")
     st.write(completion_text)
     st.image("static/thumbsup.png", width=300)
-
