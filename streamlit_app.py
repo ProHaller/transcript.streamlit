@@ -5,7 +5,10 @@ import openai
 import streamlit as st
 from openai import OpenAI
 
-"""
+
+def display_readme():
+    st.markdown(
+        """
 # 🤖💬 Welcome to Roland Tools
 
 This application utilizes OpenAI's powerful models for audio transcription and text processing. To get started, please follow these simple steps:
@@ -30,7 +33,17 @@ This application utilizes OpenAI's powerful models for audio transcription and t
 - After transcription or text processing, you can download the results using the 'Download' button.
 
 Enjoy your experience with Roland Tools! If you have any questions or feedback, please feel free to reach out.
-"""
+    """
+    )
+
+
+# Check if the user has seen the README
+if "readme_displayed" not in st.session_state:
+    st.session_state["readme_displayed"] = False
+
+if not st.session_state["readme_displayed"]:
+    display_readme()
+    st.session_state["readme_displayed"] = True
 
 
 def transcription(file, language="en", prompt="", response_format="text"):
@@ -43,6 +56,22 @@ def transcription(file, language="en", prompt="", response_format="text"):
         response_format=response_format,
     )
     return transcription_data
+
+
+def get_prompt_choice():
+    prompt_options = {
+        "None": "",
+        "Summary": "Summaries the main points of the text into a concise report.",
+        "Meeting minutes": "From the meeting transcript provided, create the meeting minutes.",
+        "Make notes": "From the transcript provided, create a structured note in markdown.",
+    }
+    return st.selectbox(
+        "Choose a prompt:",
+        options=list(prompt_options.values()),
+        format_func=lambda x: [
+            key for key, value in prompt_options.items() if value == x
+        ][0],
+    )
 
 
 def openai_completion(
@@ -68,21 +97,6 @@ def openai_completion(
 # Initialize session state for transcription text
 if "transcription_text" not in st.session_state:
     st.session_state["transcription_text"] = ""
-
-
-# def get_prompt_choice():
-#     prompt_options = {
-#         "Summary": "Summaries the main points of the text into a concise report.",
-#         "Meeting minutes": "From the meeting transcript provided, create the meeting minutes.",
-#         "Make notes": "From the transcript provided, create a structured note in markdown.",
-#     }
-#     return st.selectbox(
-#         "Choose a prompt:",
-#         options=list(prompt_options.values()),
-#         format_func=lambda x: [
-#             key for key, value in prompt_options.items() if value == x
-#         ][0],
-#     )
 
 
 # Function to display full language selector and return iso code.
@@ -133,7 +147,7 @@ with st.sidebar:
             response_format = "srt" if st.toggle("Transcribe to subtitles") else "text"
             prompt = st.text_input(
                 "Describe the audio (optional):",
-                placeholder="Tsunagaru, Roland Haller, Alice Ballé…",
+                placeholder="This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland Haller, Alice Ballé…",
                 help="This can help the transcription to be more accurate by providing context and vocabulary.",
             )
             if st.button("Transcribe"):
@@ -145,8 +159,9 @@ with st.sidebar:
     with tab2:
         st.header("Process the Text:")
         completion_text = ""
+        prepared_prompt = get_prompt_choice() or ""
         processing_prompt = st.text_area(
-            "Prompt:",
+            f"Prompt: {prepared_prompt}",
         )
         model = st.radio(
             "Model",
@@ -161,6 +176,7 @@ with st.sidebar:
         if st.button("Process text"):
             completion_text = openai_completion(
                 input_text=processing_prompt
+                + prepared_prompt
                 + (
                     st.session_state["transcription_text"]
                     if st.session_state["transcription_text"]
