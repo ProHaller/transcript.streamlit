@@ -10,6 +10,7 @@ from pydub import AudioSegment
 
 
 def display_readme():
+    st.image("static/pointing.png", width=300)
     st.markdown(
         """
 # 🤖💬 Welcome to Roland Tools
@@ -174,6 +175,7 @@ def get_language_choice():
 
 
 with st.sidebar:
+    st.image("static/salute_cut.png", width=200)
     st.title("🤖💬 Roland Tools")
     if "OPENAI_API_KEY" in st.secrets:
         st.success(
@@ -215,13 +217,7 @@ with st.sidebar:
                 placeholder="This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland Haller, Alice Ballé…",
                 help="This can help the transcription to be more accurate by providing context and vocabulary.",
             )
-            if st.button("Transcribe"):
-                with st.spinner("Wait for it... our AI is flexing its muscles!"):
-                    segment_paths = segment_audio(uploaded_file)
-                    st.session_state["transcription_text"] = parallel_transcribe_audio(
-                        segment_paths, language, prompt, response_format
-                    )
-                st.success("Done!")
+        transcribe_button = st.button("Transcribe audio")
     with tab2:
         st.header("Process the Text:")
         completion_text = ""
@@ -238,25 +234,39 @@ with st.sidebar:
         temperature = st.slider(
             "Temperature", min_value=0.1, max_value=1.0, value=0.7, step=0.1
         )
+        process_button = st.button("Process text")
 
-        if st.button("Process text"):
-            completion_text = openai_completion(
-                input_text=processing_prompt
-                + prepared_prompt
-                + (
-                    st.session_state["transcription_text"]
-                    if st.session_state["transcription_text"]
-                    else ""
-                ),
-                system_prompt="",
-                format="text",
-                model=model,
-                temperature=temperature,
-            )
+if transcribe_button:
+    with st.spinner("Wait for it... our AI is flexing its muscles!"):
+        st.image("static/writing.png", width=300)
+        segment_paths = segment_audio(uploaded_file)
+        st.session_state["transcription_text"] = parallel_transcribe_audio(
+            segment_paths, language, prompt, response_format
+        )
+    st.success("Done!")
+    st.balloons()
 
+if process_button:
+    with st.spinner("Just a moment... our AI is brainstorming!"):
+        st.image("static/thinking.png", width=300)
+        completion_text = openai_completion(
+            input_text=processing_prompt
+            + prepared_prompt
+            + (
+                st.session_state["transcription_text"]
+                if st.session_state["transcription_text"]
+                else ""
+            ),
+            system_prompt="",
+            format="text",
+            model=model,
+            temperature=temperature,
+        )
+    st.success("Done!")
+    st.balloons()
 
 if st.session_state["transcription_text"]:
-    st.download_button(
+    transcription_download = st.download_button(
         label="Download transcription",
         data=st.session_state["transcription_text"],
         file_name=uploaded_file.name.rsplit(".", 1)[0]
@@ -268,7 +278,7 @@ if st.session_state["transcription_text"]:
     st.write(st.session_state["transcription_text"])
 if completion_text:
     "---"
-    st.download_button(
+    process_download = st.download_button(
         label="Download processed text",
         data=completion_text,
         file_name=(
@@ -279,3 +289,7 @@ if completion_text:
     )
     st.markdown("# Processed Text:")
     st.write(completion_text)
+    st.image("static/thumbsup.png", width=300)
+
+if st.sidebar.uploaded_file and not st.session_state["transcription_text"]:
+    st.image("static/listening.png", width=300)
