@@ -5,6 +5,33 @@ import openai
 import streamlit as st
 from openai import OpenAI
 
+"""
+# 🤖💬 Welcome to Roland Tools
+
+This application utilizes OpenAI's powerful models for audio transcription and text processing. To get started, please follow these simple steps:
+
+### Mobile Users may need to open the side panel ↖️ 
+
+## Using the App
+### Transcription
+- **Upload an Audio File**: Choose an audio file (mp3, wav, or m4a format).
+- **Choose the Language**: Select the language of the audio file.
+- **Optional Description**: Provide a brief description of the audio and the unusual vocabulary for better context and transcription.
+- **Transcription Format**: Choose between plain text or subtitles (SRT format).
+- **Transcribe**: Click the 'Transcribe' button to start the transcription process.
+
+### Text Processing
+- **Input Your Prompt**: Type or paste the text you want to process in the text area.
+- **Choose a Model**: Select either GPT-4 or GPT-3.5 based on your preference.
+- **Set the Temperature**: Adjust the slider to set the model's creativity.
+- **Process Text**: Click the 'Process text' button to start.
+
+## Download Results
+- After transcription or text processing, you can download the results using the 'Download' button.
+
+Enjoy your experience with Roland Tools! If you have any questions or feedback, please feel free to reach out.
+"""
+
 
 def transcription(file, language="en", prompt="", response_format="text"):
     client = OpenAI()
@@ -42,10 +69,34 @@ def openai_completion(
 if "transcription_text" not in st.session_state:
     st.session_state["transcription_text"] = ""
 
+
+# Function to display full language selector and return iso code.
+def get_language_choice():
+    language_options = {
+        "English": "en",
+        "Japanese": "ja",
+        "French": "fr",
+        "Thai": "th",
+        "Arabic": "ar",
+        "Chinese": "zh",
+        "Korean": "ko",
+    }
+    return st.selectbox(
+        "Choose a language:",
+        options=list(language_options.values()),
+        format_func=lambda x: [
+            key for key, value in language_options.items() if value == x
+        ][0],
+    )
+
+
 with st.sidebar:
     st.title("🤖💬 Roland Tools")
     if "OPENAI_API_KEY" in st.secrets:
-        st.success("You are all set!", icon="✅")
+        st.success(
+            "The OpenAI credentials have been entered for you! You are all set!",
+            icon="✅",
+        )
         openai.api_key = st.secrets["OPENAI_API_KEY"]
     else:
         openai.api_key = st.text_input("Enter OpenAI API token:", type="password")
@@ -63,42 +114,19 @@ with st.sidebar:
         transcription_text = ""
         if uploaded_file:
             st.audio(uploaded_file)
-            language_options = {
-                "English": "en",
-                "Japanese": "ja",
-                "French": "fr",
-                "Thai": "th",
-                "Arabic": "ar",
-                "Chinese": "zh",
-                "Korean": "ko",
-            }
-            language = st.selectbox(
-                "Choose a language:",
-                options=list(language_options.values()),
-                format_func=lambda x: [
-                    key for key, value in language_options.items() if value == x
-                ][0],
-            )
+            language = get_language_choice()
             response_format = "srt" if st.toggle("Transcribe to subtitles") else "text"
             prompt = st.text_input(
                 "Describe the audio (optional):",
                 placeholder="Tsunagaru, Roland Haller, Alice Ballé…",
+                help="This can help the transcription to be more accurate by providing context and vocabulary.",
             )
             if st.button("Transcribe"):
-                st.session_state["transcription_text"] = transcription(
-                    uploaded_file, language, prompt, response_format
-                )
-            if st.session_state["transcription_text"]:
-                st.download_button(
-                    label="Download transcription",
-                    data=st.session_state["transcription_text"],
-                    file_name=uploaded_file.name.rsplit(".", 1)[0]
-                    + "_transcription"
-                    + ".srt"
-                    if response_format
-                    else ".txt",
-                )
-                "You can now process the text with the 'Text processing' tab."
+                with st.spinner("Wait for it... our AI is flexing its muscles!"):
+                    st.session_state["transcription_text"] = transcription(
+                        uploaded_file, language, prompt, response_format
+                    )
+                st.success("Done!")
     with tab2:
         st.header("Process the Text:")
         completion_text = ""
@@ -128,20 +156,29 @@ with st.sidebar:
                 model=model,
                 temperature=temperature,
             )
-            if completion_text:
-                st.download_button(
-                    label="Download text",
-                    data=completion_text,
-                    file_name=(
-                        uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
-                        if uploaded_file
-                        else "Processed_text.txt"
-                    ),
-                )
+
 
 if st.session_state["transcription_text"]:
+    st.download_button(
+        label="Download transcription",
+        data=st.session_state["transcription_text"],
+        file_name=uploaded_file.name.rsplit(".", 1)[0] + "_transcription" + ".srt"
+        if response_format
+        else ".txt",
+    )
+    "You can now process the text with the 'Text processing' tab."
     st.markdown("# Transcription:")
     st.write(st.session_state["transcription_text"])
 if completion_text:
+    "---"
+    st.download_button(
+        label="Download processed text",
+        data=completion_text,
+        file_name=(
+            uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
+            if uploaded_file
+            else "Processed_text.txt"
+        ),
+    )
     st.markdown("# Processed Text:")
     st.write(completion_text)
