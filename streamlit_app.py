@@ -67,8 +67,8 @@ def transcription(file_path, language="en", prompt="", response_format="text"):
 def get_prompt_choice():
     prompt_options = {
         "None": "",
-        "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly.",
-        "Meeting Summary and Action Items": "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned.",
+        "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely.",
+        "Meeting Summary and Action Items": "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned. Be concise.",
         "Question and Answer Extraction": "Scan through the recording and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues.",
         "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording. Summarize each idea, noting who proposed it and the context in which it was discussed. Indicate any feedback or reactions from other participants regarding these suggestions.",
     }
