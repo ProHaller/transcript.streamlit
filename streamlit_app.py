@@ -67,9 +67,10 @@ def transcription(file_path, language="en", prompt="", response_format="text"):
 def get_prompt_choice():
     prompt_options = {
         "None": "",
-        "Summary": "Summaries the main points of the text into a concise report.",
-        "Meeting minutes": "From the meeting transcript provided, create the meeting minutes.",
-        "Make notes": "From the transcript provided, create a structured note in markdown.",
+        "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly.",
+        "Meeting Summary and Action Items": "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned.",
+        "Question and Answer Extraction": "Scan through the recording and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues.",
+        "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording. Summarize each idea, noting who proposed it and the context in which it was discussed. Indicate any feedback or reactions from other participants regarding these suggestions.",
     }
     return st.selectbox(
         "Choose a prompt:",
@@ -130,7 +131,7 @@ def parallel_transcribe_audio(
 
 def openai_completion(
     input_text: str,
-    system_prompt: str = "",
+    system_prompt: str = "You are a helpful assistant that always answer in the same language as the input text and in markdown.",
     format="text",
     model: str = "gpt-4-1106-preview",
     temperature: float = 0,
@@ -231,7 +232,12 @@ with st.sidebar:
             horizontal=True,
         )
         temperature = st.slider(
-            "Temperature", min_value=0.1, max_value=1.0, value=0.7, step=0.1
+            "Originality",
+            min_value=0.1,
+            max_value=2.0,
+            value=0.7,
+            step=0.1,
+            help="This is the temperature of the model. 0 for a deterministic model always answering the same from the same input, to 2 fully original and detached from the input. 0.7 is the default.",
         )
         process_button = st.button("Process text")
 
