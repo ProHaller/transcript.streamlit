@@ -1,6 +1,5 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
-from logging import PlaceHolder
 from tempfile import mkdtemp
 
 import openai
