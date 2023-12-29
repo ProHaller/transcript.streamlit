@@ -291,5 +291,3 @@ if completion_text:
     st.write(completion_text)
     st.image("static/thumbsup.png", width=300)
 
-if st.sidebar.uploaded_file and not st.session_state["transcription_text"]:
-    st.image("static/listening.png", width=300)
