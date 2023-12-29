@@ -101,7 +101,11 @@ def segment_audio(uploaded_file, segment_duration=60000):  # Duration in millise
 
 # Function for parallel audio transcription
 def parallel_transcribe_audio(
-    file_paths, language, prompt, response_format, max_workers=10
+    file_paths,
+    language,
+    prompt,
+    response_format,
+    max_workers=10,
 ):
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
