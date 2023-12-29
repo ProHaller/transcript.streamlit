@@ -70,6 +70,21 @@ if "transcription_text" not in st.session_state:
     st.session_state["transcription_text"] = ""
 
 
+# def get_prompt_choice():
+#     prompt_options = {
+#         "Summary": "Summaries the main points of the text into a concise report.",
+#         "Meeting minutes": "From the meeting transcript provided, create the meeting minutes.",
+#         "Make notes": "From the transcript provided, create a structured note in markdown.",
+#     }
+#     return st.selectbox(
+#         "Choose a prompt:",
+#         options=list(prompt_options.values()),
+#         format_func=lambda x: [
+#             key for key, value in prompt_options.items() if value == x
+#         ][0],
+#     )
+
+
 # Function to display full language selector and return iso code.
 def get_language_choice():
     language_options = {
