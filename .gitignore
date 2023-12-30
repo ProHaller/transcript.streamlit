@@ -3,3 +3,4 @@
 .streamlit/secrets.toml
 test_app.py
 .DS_Store
+Session.vim
