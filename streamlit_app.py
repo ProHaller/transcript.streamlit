@@ -190,7 +190,7 @@ with st.sidebar:
     st.title("🤖💬 Roland Tools")
     if "OPENAI_API_KEY" in st.secrets:
         st.success(
-            "The OpenAI credentials have been entered for you! You are all set!",
+            "The OpenAI credentials have been entered for you! \nYou are all set!",
             icon="✅",
         )
         openai.api_key = st.secrets["OPENAI_API_KEY"]
