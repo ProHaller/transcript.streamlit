@@ -251,9 +251,10 @@ with st.sidebar:
             max_value=2.0,
             value=0.7,
             step=0.1,
-            help="This is the temperature of the model. 0 for a deterministic model always answering the same from the same input, to 2 fully original and detached from the input. 0.7 is the default.",
+            help="This is the originality(temperature) of the openai model. 0 for a deterministic model always answering the same from the same input, 2 is fully free crazy AI completely detached from the input. 0.7 is the default.",
         )
         process_button = st.button("Process text")
+        is_festive = st.checkbox("I am feeling festive!")
 
 if transcribe_button:
     with st.spinner("Wait for it... our AI is flexing its muscles!"):
@@ -293,6 +294,8 @@ if process_button:
             model=model,
             temperature=temperature,
         )
+        if is_festive:
+            st.balloons()
     st.success("Done!")
 
 if st.session_state["transcription_text"]:
