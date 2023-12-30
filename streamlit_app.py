@@ -6,31 +6,32 @@ import openai
 import streamlit as st
 from openai import OpenAI
 from pydub import AudioSegment
+from st_audiorec import st_audiorec
 
 
 def display_readme():
-    st.image("static/pointing.png", width=300)
+    st.image("static/transcription.svg", width=600)
     st.markdown(
         """
-# 🤖💬 Welcome to Roland Tools
+#  Welcome to Roland Tools
 
 This application utilizes OpenAI's powerful models for audio transcription and text processing. To get started, please follow these simple steps:
 
-### Mobile Users may need to open the side panel ↖️ 
+### ↖️ Mobile Users may need to open the side panel  
 
 ## Using the App
 ### Transcription
-- **Upload an Audio File**: Choose an audio file (mp3, wav, or m4a format).
+- **Upload or record an Audio File**: Choose an audio file (mp3, wav, or m4a format).
 - **Choose the Language**: Select the language of the audio file.
 - **Optional Description**: Provide a brief description of the audio and the unusual vocabulary for better context and transcription.
 - **Transcription Format**: Choose between plain text or subtitles (SRT format).
 - **Transcribe**: Click the 'Transcribe' button to start the transcription process.
 
-### Text Processing
-- **Input Your Prompt**: Type or paste the text you want to process in the text area.
-- **Choose a Model**: Select either GPT-4 or GPT-3.5 based on your preference.
+### Text Post-processing
+- **Input Your Prompt**: Type or paste the prompt with the instructions for the Post-processing in the prompt text area.
+- **Choose a Model**: Select either GPT-4 or GPT-3.5 based on your needs.
 - **Set the Temperature**: Adjust the slider to set the model's creativity.
-- **Process Text**: Click the 'Process text' button to start.
+- **Process Text**: Click the 'Process text' button to start processing the transcription text.
 
 ## Download Results
 - After transcription or text processing, you can download the results using the 'Download' button.
@@ -70,7 +71,7 @@ def get_prompt_choice():
         "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording transcript. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely.",
         "Meeting Summary and Action Items": "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned. Be concise.",
         "Question and Answer Extraction": "Scan through the recording transcript and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues.",
-        "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it and the context in which it was discussed. Indicate any feedback or reactions from other participants regarding these suggestions.",
+        "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it if specified, and the context in which it was discussed. Indicate any feedback or reactions from others regarding these suggestions.",
     }
     return st.selectbox(
         "Choose a prompt:",
@@ -82,12 +83,14 @@ def get_prompt_choice():
 
 
 # Function to segment the audio file
-def segment_audio(uploaded_file, segment_duration=60000):  # Duration in milliseconds
-    temp_dir = mkdtemp()  # Create a temporary directory
-    temp_file_path = os.path.join(temp_dir, uploaded_file.name)
+def segment_audio(audio_file, segment_duration=60000):
+    temp_dir = mkdtemp()
+    file_name = "audio_segment.wav"  # A generic name for the audio segment
+    temp_file_path = os.path.join(temp_dir, file_name)
 
+    audio_file.seek(0)  # Ensure the file pointer is at the start
     with open(temp_file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+        f.write(audio_file.read())
 
     audio = AudioSegment.from_file(temp_file_path)
     segments = []
@@ -157,6 +160,10 @@ def openai_completion(
 if "transcription_text" not in st.session_state:
     st.session_state["transcription_text"] = ""
 
+# Initialize session state for completion text
+if "completion_text" not in st.session_state:
+    st.session_state["completion_text"] = ""
+
 
 # Function to display full language selector and return iso code.
 def get_language_choice():
@@ -179,7 +186,7 @@ def get_language_choice():
 
 
 with st.sidebar:
-    st.image("static/salute_cut.png", width=200)
+    st.image("static/logo.png", width=200)
     st.title("🤖💬 Roland Tools")
     if "OPENAI_API_KEY" in st.secrets:
         st.success(
@@ -196,7 +203,9 @@ with st.sidebar:
 
     tab1, tab2 = st.tabs(["Transcription", "Text processing"])
     with tab1:
-        st.header("Upload an audio file")
+        st.header("Upload or record an audio file")
+        # st_audiorec() allow for a recording of audio and stores the result as a wav text. When downloaded, it appears as "streamlit_audio {date}.wav"
+        recorded_file = st_audiorec()
         uploaded_file = st.file_uploader(
             "Choose an audio file ⬇️",
             type=[
@@ -212,7 +221,7 @@ with st.sidebar:
                 "webm",
             ],
         )
-        if uploaded_file:
+        if uploaded_file or recorded_file:
             st.audio(uploaded_file)
             language = get_language_choice()
             response_format = "srt" if st.toggle("Transcribe to subtitles") else "text"
@@ -224,7 +233,6 @@ with st.sidebar:
         transcribe_button = st.button("Transcribe audio")
     with tab2:
         st.header("Process the Text:")
-        completion_text = ""
         prepared_prompt = get_prompt_choice() or ""
         processing_prompt = st.text_area(
             f"Prompt: {prepared_prompt}",
@@ -248,17 +256,29 @@ with st.sidebar:
 if transcribe_button:
     with st.spinner("Wait for it... our AI is flexing its muscles!"):
         st.image("static/writing.png", width=300)
-        segment_paths = segment_audio(uploaded_file)
+
+        # Check if there is recorded audio and no uploaded file
+        if recorded_file is not None and uploaded_file is None:
+            recorded_audio_path = os.path.join(
+                mkdtemp(), "recorded_audio.wav"
+            )  # Temporary file
+            with open(recorded_audio_path, "wb") as f:
+                f.write(recorded_file)  # Write the bytes directly
+            audio_to_process = open(recorded_audio_path, "rb")
+        else:
+            # Use the uploaded file
+            audio_to_process = uploaded_file
+
+        segment_paths = segment_audio(audio_to_process)
         st.session_state["transcription_text"] = parallel_transcribe_audio(
             segment_paths, language, prompt, response_format
         )
     st.success("Done!")
-    st.balloons()
 
 if process_button:
     with st.spinner("Just a moment... our AI is brainstorming!"):
         st.image("static/thinking.png", width=300)
-        completion_text = openai_completion(
+        st.session_state["completion_text"] = openai_completion(
             input_text=processing_prompt
             + prepared_prompt
             + (
@@ -272,30 +292,39 @@ if process_button:
             temperature=temperature,
         )
     st.success("Done!")
-    st.balloons()
 
 if st.session_state["transcription_text"]:
+    # Determine the file name based on whether the file was uploaded or recorded
+    file_base_name = (
+        uploaded_file.name.rsplit(".", 1)[0] if uploaded_file else "recorded_audio"
+    )
+    transcription_file_name = (
+        file_base_name
+        + "_transcription"
+        + (".srt" if tab1.response_format is True else ".txt")
+    )
+
+    # Use this file name in the download button
     transcription_download = st.download_button(
         label="Download transcription",
         data=st.session_state["transcription_text"],
-        file_name=uploaded_file.name.rsplit(".", 1)[0]
-        + "_transcription"
-        + (".srt" if tab1.response_format is True else ".txt"),
+        file_name=transcription_file_name,
     )
     "You can now process the text with the 'Text processing' tab."
     st.markdown("# Transcription:")
     st.write(st.session_state["transcription_text"])
-if completion_text:
+
+if st.session_state["completion_text"]:
     "---"
     process_download = st.download_button(
         label="Download processed text",
-        data=completion_text,
+        data=st.session_state["completion_text"],
         file_name=(
             uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
             if uploaded_file
             else "Processed_text.txt"
         ),
     )
-    st.markdown("# Processed Text:")
-    st.write(completion_text)
+    st.markdown("# Post-processed Text:")
+    st.write(st.session_state["completion_text"])
     st.image("static/thumbsup.png", width=300)
