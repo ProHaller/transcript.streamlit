@@ -67,10 +67,10 @@ def transcription(file_path, language="en", prompt="", response_format="text"):
 def get_prompt_choice():
     prompt_options = {
         "None": "",
-        "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely.",
+        "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording transcript. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely.",
         "Meeting Summary and Action Items": "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned. Be concise.",
-        "Question and Answer Extraction": "Scan through the recording and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues.",
-        "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording. Summarize each idea, noting who proposed it and the context in which it was discussed. Indicate any feedback or reactions from other participants regarding these suggestions.",
+        "Question and Answer Extraction": "Scan through the recording transcript and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues.",
+        "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it and the context in which it was discussed. Indicate any feedback or reactions from other participants regarding these suggestions.",
     }
     return st.selectbox(
         "Choose a prompt:",
@@ -135,7 +135,7 @@ def parallel_transcribe_audio(
 
 def openai_completion(
     input_text: str,
-    system_prompt: str = "You are a helpful assistant that always answer in the same language as the input text and in markdown.",
+    system_prompt: str = "You are a helpful assistant that always answers in markdown.",
     format="text",
     model: str = "gpt-4-1106-preview",
     temperature: float = 0,
