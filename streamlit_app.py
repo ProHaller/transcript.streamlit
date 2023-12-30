@@ -205,7 +205,6 @@ with st.sidebar:
     with tab1:
         st.header("Upload or record an audio file")
         # st_audiorec() allow for a recording of audio and stores the result as a wav text. When downloaded, it appears as "streamlit_audio {date}.wav"
-        recorded_file = st_audiorec()
         uploaded_file = st.file_uploader(
             "Choose an audio file ⬇️",
             type=[
@@ -221,8 +220,11 @@ with st.sidebar:
                 "webm",
             ],
         )
+        recorded_file = st_audiorec()
+        transcribe_button = None
         if uploaded_file or recorded_file:
-            st.audio(uploaded_file)
+            if uploaded_file:
+                st.audio(uploaded_file)
             language = get_language_choice()
             response_format = "srt" if st.toggle("Transcribe to subtitles") else "text"
             prompt = st.text_input(
@@ -230,7 +232,7 @@ with st.sidebar:
                 placeholder="This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland Haller, Alice Ballé…",
                 help="This can help the transcription to be more accurate by providing context and vocabulary.",
             )
-        transcribe_button = st.button("Transcribe audio")
+            transcribe_button = st.button("Transcribe audio")
     with tab2:
         st.header("Process the Text:")
         prepared_prompt = get_prompt_choice() or ""
