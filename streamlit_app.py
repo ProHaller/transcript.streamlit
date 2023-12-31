@@ -180,6 +180,7 @@ with st.sidebar:
     with tab1:
         st.header("💽 Upload an Audio")
         uploaded_file = st.file_uploader(
+            "",
             type=[
                 "flac",
                 "m4a",
@@ -193,7 +194,7 @@ with st.sidebar:
                 "webm",
             ],
         )
-        st.header("🎙️Record an Audio")
+        st.header("🎙️ Record an Audio")
         recorded_file = st_audiorec()
         transcribe_button = None
         if uploaded_file or recorded_file:
