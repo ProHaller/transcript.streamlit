@@ -4,16 +4,31 @@ from tempfile import mkdtemp
 
 import openai
 import streamlit as st
+import toml
 from openai import OpenAI
 from pydub import AudioSegment
 from st_audiorec import st_audiorec
 
+st.set_page_config(
+    page_title="Roland's Tool",
+    page_icon="logo.png",
+    initial_sidebar_state="expanded",
+)
+
 
 def display_readme():
-    st.image("static/transcription.svg", width=600)
+    st.image("static/transcription.svg", width=400)
+    st.markdown(
+        """
+# Welcome to Roland Tools
+
+This app transcribe spoken words from any language then make useful notes from it.
+    """
+    )
     with open("README.md", "r") as file:
         readme_content = file.read()
-    st.markdown(readme_content)
+    with st.expander("I need help!"):
+        st.markdown(readme_content)
 
 
 # Check if the user has seen the README
@@ -41,19 +56,15 @@ def transcription(file_path, language="en", prompt="", response_format="text"):
 
 
 def get_prompt_choice():
-    prompt_options = {
-        "None": "",
-        "Highlight Key Points": "Identify and list the main topics and key points discussed in this recording transcript. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely.",
-        "Meeting Summary and Action Items": "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned. Be concise.",
-        "Question and Answer Extraction": "Scan through the recording transcript and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues.",
-        "Ideas and Suggestions Compilation": "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it if specified, and the context in which it was discussed. Indicate any feedback or reactions from others regarding these suggestions.",
+    prompt_options = toml.load("prompts.toml")
+    formatted_options = {
+        key: value["description"] for key, value in prompt_options.items()
     }
     return st.selectbox(
         "Choose a prompt:",
-        options=list(prompt_options.values()),
-        format_func=lambda x: [
-            key for key, value in prompt_options.items() if value == x
-        ][0],
+        key="prompt_box",
+        options=formatted_options.values(),
+        format_func=lambda x: next(k for k, v in formatted_options.items() if v == x),
     )
 
 
@@ -161,12 +172,12 @@ def get_language_choice():
 
 
 with st.sidebar:
-    st.image("static/logo.png", width=200)
+    st.image("static/logo.png", width=100)
     st.title("🤖💬 Roland Tools")
     if "OPENAI_API_KEY" in st.secrets:
-        st.success(
+        st.write(
             "The OpenAI credentials have been entered for you! \nYou are all set!",
-            icon="✅",
+            # icon="✅",
         )
         openai.api_key = st.secrets["OPENAI_API_KEY"]
     else:
@@ -195,7 +206,8 @@ with st.sidebar:
             ],
         )
         st.header("🎙️ Record an Audio")
-        recorded_file = st_audiorec()
+        with st.expander("Click me"):
+            recorded_file = st_audiorec()
         transcribe_button = None
         if uploaded_file or recorded_file:
             if uploaded_file:
