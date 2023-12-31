@@ -203,10 +203,9 @@ with st.sidebar:
 
     tab1, tab2 = st.tabs(["Transcription", "Text processing"])
     with tab1:
-        st.header("Upload or record an audio file")
-        # st_audiorec() allow for a recording of audio and stores the result as a wav text. When downloaded, it appears as "streamlit_audio {date}.wav"
+        st.header("Choose an audio file")
         uploaded_file = st.file_uploader(
-            "Choose an audio file ⬇️",
+            "Upload an audio file ⬇️",
             type=[
                 "flac",
                 "m4a",
@@ -220,6 +219,7 @@ with st.sidebar:
                 "webm",
             ],
         )
+        st.header("You can also directly record some audio")
         recorded_file = st_audiorec()
         transcribe_button = None
         if uploaded_file or recorded_file:

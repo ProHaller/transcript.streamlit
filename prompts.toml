@@ -1,0 +1,14 @@
+[None]
+description = ""
+
+[HighlightKeyPoints]
+description = "Identify and list the main topics and key points discussed in this recording transcript. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely."
+
+[MeetingSummaryAndActionItems]
+description = "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned. Be concise."
+
+[QuestionAndAnswerExtraction]
+description = "Scan through the recording transcript and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues."
+
+[IdeasAndSuggestionsCompilation]
+description = "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it if specified, and the context in which it was discussed. Indicate any feedback or reactions from others regarding these suggestions."
