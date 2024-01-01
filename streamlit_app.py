@@ -188,7 +188,7 @@ with st.sidebar:
         else:
             openai.api_key = st.text_input("Enter OpenAI API token:", type="password")
             if not (openai.api_key.startswith("sk-") and len(openai.api_key) == 51):
-                st.error("Please enter your credentials!", icon="⚠️")
+                st.warning("Please enter your credentials!", icon="⚠️")
             else:
                 st.success("Proceed to uploading your audio file!", icon="👉")
     "---"
@@ -239,7 +239,7 @@ with st.sidebar:
             use_container_width=True,
         )
         if transcribe_button_warning:
-            st.warning("Please upload a file to transcribe…")
+            st.error("Please upload a file to transcribe…")
     "---"
     st.title("🤖📝 Secretary Tool")
     prepared_prompt = get_prompt_choice() or ""
