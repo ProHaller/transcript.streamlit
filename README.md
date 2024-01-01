@@ -1,28 +1,25 @@
-# Welcome to Roland Tools
+Hey there! Let's dive into how to use Roland's Tool, your friendly app for transcribing and processing audio. It's super easy, I promise!
 
-This application utilizes OpenAI's powerful models for audio transcription and text processing. To get started, please follow these simple steps:
+### Getting Started 🚀
 
-### ↖️ Mobile Users may need to open the side panel
+1. **Welcome Screen**: When you first open the app, you'll see a neat welcome screen. Take a moment to read through it; it's got some helpful info.
+2. **Sidebar Fun**: On the left, there's a cool sidebar. Here, you can enter your OpenAI API token (keep it secret!) and choose if you're in a festive mood.
 
-## Using the App
+### Transcribe Tool 🎧🤖
 
-### Transcription
+3. **Upload or Record**: Click on the 'Upload' or 'Record' tab. You can either upload an audio file or record something new. The app supports various file formats, so don't worry about compatibility.
+4. **Language & Format**: Choose the language of your audio. You can also select if you want your transcription in text or subtitles.
+5. **Transcribe It**: Hit 'Transcribe audio'. The app will take a little time to listen and transcribe your audio. It's magic!
 
-- **Upload or record an Audio File**: Choose an audio file (mp3, wav, or m4a format).
-- **Choose the Language**: Select the language of the audio file.
-- **Optional Description**: Provide a brief description of the audio and the unusual vocabulary for better context and transcription.
-- **Transcription Format**: Choose between plain text or subtitles (SRT format).
-- **Transcribe**: Click the 'Transcribe' button to start the transcription process.
+### Secretary Tool 🤖📝
 
-### Text Post-processing
+6. **Process Your Text**: After transcribing, switch to the 'Secretary Tool'. Here, you can tell the app what to do with your text. Get creative!
+7. **Tweak Settings**: Play around with the model and originality settings. You can make the AI responses range from very predictable to super creative.
+8. **Get Results**: Click 'Process text'. The app will churn out something awesome based on your instructions.
 
-- **Input Your Prompt**: Type or paste the prompt with the instructions for the Post-processing in the prompt text area.
-- **Choose a Model**: Select either GPT-4 or GPT-3.5 based on your needs.
-- **Set the Temperature**: Adjust the slider to set the model's creativity.
-- **Process Text**: Click the 'Process text' button to start processing the transcription text.
+### Extras 🌟
 
-## Download Results
+- **Feeling Festive?**: Check that festive box for some surprise fun.
+- **Download Your Work**: You can download both the transcribed and processed texts. Just look for the download buttons.
 
-- After transcription or text processing, you can download the results using the 'Download' button.
-
-Enjoy your experience with Roland Tools! If you have any questions or feedback, please feel free to reach out.
+And that's pretty much it! Enjoy using Roland's Tool. It's designed to be simple, fun, and super useful. Happy transcribing and creating! 🤩👍

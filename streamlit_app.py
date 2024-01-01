@@ -11,13 +11,15 @@ from st_audiorec import st_audiorec
 
 st.set_page_config(
     page_title="Roland's Tool",
-    page_icon="logo.png",
-    initial_sidebar_state="expanded",
+    page_icon="🤖",
+    layout="wide",
 )
+
+sidebar, main = st.columns([1, 2], gap="large")
 
 
 def display_readme():
-    st.image("static/transcription.svg", width=400)
+    st.image("static/transcription.svg", width=400, use_column_width="always")
     st.markdown(
         """
 # Welcome to Roland Tools
@@ -31,13 +33,14 @@ This app transcribe spoken words from any language then make useful notes from i
         st.markdown(readme_content)
 
 
-# Check if the user has seen the README
-if "readme_displayed" not in st.session_state:
-    st.session_state["readme_displayed"] = False
+with main:
+    # Check if the user has seen the README
+    if "readme_displayed" not in st.session_state:
+        st.session_state["readme_displayed"] = False
 
-if not st.session_state["readme_displayed"]:
-    display_readme()
-    st.session_state["readme_displayed"] = True
+    if not st.session_state["readme_displayed"]:
+        display_readme()
+        st.session_state["readme_displayed"] = True
 
 
 def transcription(file_path, language="en", prompt="", response_format="text"):
@@ -61,7 +64,7 @@ def get_prompt_choice():
         key: value["description"] for key, value in prompt_options.items()
     }
     return st.selectbox(
-        "Choose a prompt:",
+        "Choose a prepared prompt(Optional):",
         key="prompt_box",
         options=formatted_options.values(),
         format_func=lambda x: next(k for k, v in formatted_options.items() if v == x),
@@ -163,7 +166,7 @@ def get_language_choice():
         "Korean": "ko",
     }
     return st.selectbox(
-        "Choose a language:",
+        "What is the language of the audio?",
         options=list(language_options.values()),
         format_func=lambda x: [
             key for key, value in language_options.items() if value == x
@@ -171,27 +174,33 @@ def get_language_choice():
     )
 
 
-with st.sidebar:
-    st.image("static/logo.png", width=100)
-    st.title("🤖💬 Roland Tools")
-    if "OPENAI_API_KEY" in st.secrets:
-        st.write(
-            "The OpenAI credentials have been entered for you! \nYou are all set!",
-            # icon="✅",
+with sidebar:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.image(
+            "static/logo.png",
+            width=100,
+            use_column_width="always",
         )
-        openai.api_key = st.secrets["OPENAI_API_KEY"]
-    else:
-        openai.api_key = st.text_input("Enter OpenAI API token:", type="password")
-        if not (openai.api_key.startswith("sk-") and len(openai.api_key) == 51):
-            st.warning("Please enter your credentials!", icon="⚠️")
+    with col2:
+        if "OPENAI_API_KEY" in st.secrets:
+            st.write("The OpenAI credentials have been entered for you!")
+            st.write("You are all set!")
+            openai.api_key = st.secrets["OPENAI_API_KEY"]
         else:
-            st.success("Proceed to uploading your audio file!", icon="👉")
+            openai.api_key = st.text_input("Enter OpenAI API token:", type="password")
+            if not (openai.api_key.startswith("sk-") and len(openai.api_key) == 51):
+                st.warning("Please enter your credentials!", icon="⚠️")
+            else:
+                st.success("Proceed to uploading your audio file!", icon="👉")
+    "---"
+    st.title("🎧🤖 Transcribe Tool")
 
-    tab1, tab2 = st.tabs(["Transcription", "Text processing"])
+    tab1, tab2 = st.tabs(["💽 Upload", "🎙️ Record"])
     with tab1:
-        st.header("💽 Upload an Audio")
         uploaded_file = st.file_uploader(
-            "",
+            "File Uploader",
+            label_visibility="collapsed",
             type=[
                 "flac",
                 "m4a",
@@ -205,26 +214,41 @@ with st.sidebar:
                 "webm",
             ],
         )
-        st.header("🎙️ Record an Audio")
-        with st.expander("Click me"):
-            recorded_file = st_audiorec()
-        transcribe_button = None
-        if uploaded_file or recorded_file:
+    with tab2:
+        st.subheader("")
+        recorded_file = st_audiorec()
+    transcribe_button = None
+    if uploaded_file or recorded_file:
+        with st.form(key="transcribe_form", clear_on_submit=False, border=True):
             if uploaded_file:
                 st.audio(uploaded_file)
             language = get_language_choice()
             response_format = "srt" if st.toggle("Transcribe to subtitles") else "text"
-            prompt = st.text_input(
+            prompt = st.text_area(
                 "Describe the audio (optional):",
                 placeholder="This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland Haller, Alice Ballé…",
                 help="This can help the transcription to be more accurate by providing context and vocabulary.",
             )
-            transcribe_button = st.button("Transcribe audio")
-    with tab2:
-        st.header("Process the Text:")
-        prepared_prompt = get_prompt_choice() or ""
+            transcribe_button = st.form_submit_button(
+                "Transcribe audio",
+                type="primary",
+                use_container_width=True,
+            )
+    else:
+        transcribe_button_warning = st.button(
+            "Transcribe audio",
+            use_container_width=True,
+        )
+        if transcribe_button_warning:
+            st.warning("Please upload a file to transcribe…")
+    "---"
+    st.title("🤖📝 Secretary Tool")
+    prepared_prompt = get_prompt_choice() or ""
+    with st.form(key="secretary_form", clear_on_submit=False, border=True):
         processing_prompt = st.text_area(
-            f"Prompt: {prepared_prompt}",
+            "AI secretary instructions:",
+            value=(f"{prepared_prompt}"),
+            help="Describe what you want your AI secretary to do with the transcribed text: make notes, a poem, a list of groceries, etc.",
         )
         model = st.radio(
             "Model",
@@ -240,83 +264,88 @@ with st.sidebar:
             step=0.1,
             help="This is the originality(temperature) of the openai model. 0 for a deterministic model always answering the same from the same input, 2 is fully free crazy AI completely detached from the input. 0.7 is the default.",
         )
-        process_button = st.button("Process text")
+        process_button = st.form_submit_button(
+            "Process text",
+            type="primary",
+            use_container_width=True,
+        )
         is_festive = st.checkbox("I am feeling festive!")
 
-if transcribe_button:
-    with st.spinner("Wait for it... our AI is flexing its muscles!"):
-        st.image("static/writing.png", width=300)
+with main:
+    if transcribe_button:
+        with st.spinner("Wait for it... our AI is listening!"):
+            st.image("static/writing.png", width=300, use_column_width="always")
 
-        # Check if there is recorded audio and no uploaded file
-        if recorded_file is not None and uploaded_file is None:
-            recorded_audio_path = os.path.join(
-                mkdtemp(), "recorded_audio.wav"
-            )  # Temporary file
-            with open(recorded_audio_path, "wb") as f:
-                f.write(recorded_file)  # Write the bytes directly
-            audio_to_process = open(recorded_audio_path, "rb")
-        else:
-            # Use the uploaded file
-            audio_to_process = uploaded_file
+            # Check if there is recorded audio and no uploaded file
+            if recorded_file is not None and uploaded_file is None:
+                recorded_audio_path = os.path.join(
+                    mkdtemp(), "recorded_audio.wav"
+                )  # Temporary file
+                with open(recorded_audio_path, "wb") as f:
+                    f.write(recorded_file)  # Write the bytes directly
+                audio_to_process = open(recorded_audio_path, "rb")
+            else:
+                # Use the uploaded file
+                audio_to_process = uploaded_file
 
-        segment_paths = segment_audio(audio_to_process)
-        st.session_state["transcription_text"] = parallel_transcribe_audio(
-            segment_paths, language, prompt, response_format
+            segment_paths = segment_audio(audio_to_process)
+            st.session_state["transcription_text"] = parallel_transcribe_audio(
+                segment_paths, language, prompt, response_format
+            )
+        st.success("Done!")
+
+    if process_button:
+        with st.spinner("Just a moment... our AI is thinking!"):
+            st.image("static/thinking.png", width=300, use_column_width="always")
+            st.session_state["completion_text"] = openai_completion(
+                input_text=processing_prompt
+                + prepared_prompt
+                + (
+                    st.session_state["transcription_text"]
+                    if st.session_state["transcription_text"]
+                    else ""
+                ),
+                system_prompt="",
+                format="text",
+                model=model,
+                temperature=temperature,
+            )
+            if is_festive:
+                st.balloons()
+        st.success("Done!")
+
+    if st.session_state["transcription_text"]:
+        # Determine the file name based on whether the file was uploaded or recorded
+        file_base_name = (
+            uploaded_file.name.rsplit(".", 1)[0] if uploaded_file else "recorded_audio"
         )
-    st.success("Done!")
+        transcription_file_name = (
+            file_base_name
+            + "_transcription"
+            + (".srt" if tab1.response_format is True else ".txt")
+        )
 
-if process_button:
-    with st.spinner("Just a moment... our AI is brainstorming!"):
-        st.image("static/thinking.png", width=300)
-        st.session_state["completion_text"] = openai_completion(
-            input_text=processing_prompt
-            + prepared_prompt
-            + (
-                st.session_state["transcription_text"]
-                if st.session_state["transcription_text"]
-                else ""
+        # Use this file name in the download button
+        transcription_download = st.download_button(
+            label="Download transcription",
+            data=st.session_state["transcription_text"],
+            file_name=transcription_file_name,
+        )
+        "You can now process the text with the 'Text processing' tab."
+        st.markdown("# Transcription:")
+        st.write(st.session_state["transcription_text"])
+
+    if st.session_state["completion_text"]:
+        "---"
+        process_download = st.download_button(
+            label="Download processed text",
+            data=st.session_state["completion_text"],
+            file_name=(
+                uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
+                if uploaded_file
+                else "Processed_text.txt"
             ),
-            system_prompt="",
-            format="text",
-            model=model,
-            temperature=temperature,
         )
-        if is_festive:
-            st.balloons()
-    st.success("Done!")
-
-if st.session_state["transcription_text"]:
-    # Determine the file name based on whether the file was uploaded or recorded
-    file_base_name = (
-        uploaded_file.name.rsplit(".", 1)[0] if uploaded_file else "recorded_audio"
-    )
-    transcription_file_name = (
-        file_base_name
-        + "_transcription"
-        + (".srt" if tab1.response_format is True else ".txt")
-    )
-
-    # Use this file name in the download button
-    transcription_download = st.download_button(
-        label="Download transcription",
-        data=st.session_state["transcription_text"],
-        file_name=transcription_file_name,
-    )
-    "You can now process the text with the 'Text processing' tab."
-    st.markdown("# Transcription:")
-    st.write(st.session_state["transcription_text"])
-
-if st.session_state["completion_text"]:
-    "---"
-    process_download = st.download_button(
-        label="Download processed text",
-        data=st.session_state["completion_text"],
-        file_name=(
-            uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
-            if uploaded_file
-            else "Processed_text.txt"
-        ),
-    )
-    st.markdown("# Post-processed Text:")
-    st.write(st.session_state["completion_text"])
-    st.image("static/thumbsup.png", width=300)
+        st.markdown("# Post-processed Text:")
+        st.write(st.session_state["completion_text"])
+        st.image("static/thumbsup.png", width=300, use_column_width="always")
