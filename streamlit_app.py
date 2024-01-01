@@ -272,7 +272,10 @@ with st.sidebar:
 
 if transcribe_button:
     with st.spinner("Wait for it... our AI is listening!"):
-        st.image("static/writing.png", width=300, use_column_width="always")
+        st.image(
+            "static/writing.png",
+            width=300,
+        )
 
         # Check if there is recorded audio and no uploaded file
         if recorded_file is not None and uploaded_file is None:
@@ -294,7 +297,10 @@ if transcribe_button:
 
 if process_button:
     with st.spinner("Just a moment... our AI is thinking!"):
-        st.image("static/thinking.png", width=300, use_column_width="always")
+        st.image(
+            "static/thinking.png",
+            width=300,
+        )
         st.session_state["completion_text"] = openai_completion(
             input_text=processing_prompt
             + prepared_prompt
