@@ -15,8 +15,6 @@ st.set_page_config(
     layout="wide",
 )
 
-sidebar, main = st.columns([1, 2], gap="large")
-
 
 def display_readme():
     st.image("static/transcription.svg", width=400, use_column_width="always")
@@ -33,14 +31,13 @@ This app transcribe spoken words from any language then make useful notes from i
         st.markdown(readme_content)
 
 
-with main:
-    # Check if the user has seen the README
-    if "readme_displayed" not in st.session_state:
-        st.session_state["readme_displayed"] = False
+# Check if the user has seen the README
+if "readme_displayed" not in st.session_state:
+    st.session_state["readme_displayed"] = False
 
-    if not st.session_state["readme_displayed"]:
-        display_readme()
-        st.session_state["readme_displayed"] = True
+if not st.session_state["readme_displayed"]:
+    display_readme()
+    st.session_state["readme_displayed"] = True
 
 
 def transcription(file_path, language="en", prompt="", response_format="text"):
@@ -174,7 +171,7 @@ def get_language_choice():
     )
 
 
-with sidebar:
+with st.sidebar:
     col1, col2 = st.columns(2)
     with col1:
         st.image(
@@ -237,6 +234,7 @@ with sidebar:
     else:
         transcribe_button_warning = st.button(
             "Transcribe audio",
+            type="primary",
             use_container_width=True,
         )
         if transcribe_button_warning:
@@ -271,81 +269,80 @@ with sidebar:
         )
         is_festive = st.checkbox("I am feeling festive!")
 
-with main:
-    if transcribe_button:
-        with st.spinner("Wait for it... our AI is listening!"):
-            st.image("static/writing.png", width=300, use_column_width="always")
+if transcribe_button:
+    with st.spinner("Wait for it... our AI is listening!"):
+        st.image("static/writing.png", width=300, use_column_width="always")
 
-            # Check if there is recorded audio and no uploaded file
-            if recorded_file is not None and uploaded_file is None:
-                recorded_audio_path = os.path.join(
-                    mkdtemp(), "recorded_audio.wav"
-                )  # Temporary file
-                with open(recorded_audio_path, "wb") as f:
-                    f.write(recorded_file)  # Write the bytes directly
-                audio_to_process = open(recorded_audio_path, "rb")
-            else:
-                # Use the uploaded file
-                audio_to_process = uploaded_file
+        # Check if there is recorded audio and no uploaded file
+        if recorded_file is not None and uploaded_file is None:
+            recorded_audio_path = os.path.join(
+                mkdtemp(), "recorded_audio.wav"
+            )  # Temporary file
+            with open(recorded_audio_path, "wb") as f:
+                f.write(recorded_file)  # Write the bytes directly
+            audio_to_process = open(recorded_audio_path, "rb")
+        else:
+            # Use the uploaded file
+            audio_to_process = uploaded_file
 
-            segment_paths = segment_audio(audio_to_process)
-            st.session_state["transcription_text"] = parallel_transcribe_audio(
-                segment_paths, language, prompt, response_format
-            )
-        st.success("Done!")
-
-    if process_button:
-        with st.spinner("Just a moment... our AI is thinking!"):
-            st.image("static/thinking.png", width=300, use_column_width="always")
-            st.session_state["completion_text"] = openai_completion(
-                input_text=processing_prompt
-                + prepared_prompt
-                + (
-                    st.session_state["transcription_text"]
-                    if st.session_state["transcription_text"]
-                    else ""
-                ),
-                system_prompt="",
-                format="text",
-                model=model,
-                temperature=temperature,
-            )
-            if is_festive:
-                st.balloons()
-        st.success("Done!")
-
-    if st.session_state["transcription_text"]:
-        # Determine the file name based on whether the file was uploaded or recorded
-        file_base_name = (
-            uploaded_file.name.rsplit(".", 1)[0] if uploaded_file else "recorded_audio"
+        segment_paths = segment_audio(audio_to_process)
+        st.session_state["transcription_text"] = parallel_transcribe_audio(
+            segment_paths, language, prompt, response_format
         )
-        transcription_file_name = (
-            file_base_name
-            + "_transcription"
-            + (".srt" if tab1.response_format is True else ".txt")
-        )
+    st.success("Done!")
 
-        # Use this file name in the download button
-        transcription_download = st.download_button(
-            label="Download transcription",
-            data=st.session_state["transcription_text"],
-            file_name=transcription_file_name,
-        )
-        "You can now process the text with the 'Text processing' tab."
-        st.markdown("# Transcription:")
-        st.write(st.session_state["transcription_text"])
-
-    if st.session_state["completion_text"]:
-        "---"
-        process_download = st.download_button(
-            label="Download processed text",
-            data=st.session_state["completion_text"],
-            file_name=(
-                uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
-                if uploaded_file
-                else "Processed_text.txt"
+if process_button:
+    with st.spinner("Just a moment... our AI is thinking!"):
+        st.image("static/thinking.png", width=300, use_column_width="always")
+        st.session_state["completion_text"] = openai_completion(
+            input_text=processing_prompt
+            + prepared_prompt
+            + (
+                st.session_state["transcription_text"]
+                if st.session_state["transcription_text"]
+                else ""
             ),
+            system_prompt="",
+            format="text",
+            model=model,
+            temperature=temperature,
         )
-        st.markdown("# Post-processed Text:")
-        st.write(st.session_state["completion_text"])
-        st.image("static/thumbsup.png", width=300, use_column_width="always")
+        if is_festive:
+            st.balloons()
+    st.success("Done!")
+
+if st.session_state["transcription_text"]:
+    # Determine the file name based on whether the file was uploaded or recorded
+    file_base_name = (
+        uploaded_file.name.rsplit(".", 1)[0] if uploaded_file else "recorded_audio"
+    )
+    transcription_file_name = (
+        file_base_name
+        + "_transcription"
+        + (".srt" if tab1.response_format is True else ".txt")
+    )
+
+    # Use this file name in the download button
+    transcription_download = st.download_button(
+        label="Download transcription",
+        data=st.session_state["transcription_text"],
+        file_name=transcription_file_name,
+    )
+    "You can now process the text with the 'Text processing' tab."
+    st.markdown("# Transcription:")
+    st.write(st.session_state["transcription_text"])
+
+if st.session_state["completion_text"]:
+    "---"
+    process_download = st.download_button(
+        label="Download processed text",
+        data=st.session_state["completion_text"],
+        file_name=(
+            uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
+            if uploaded_file
+            else "Processed_text.txt"
+        ),
+    )
+    st.markdown("# Post-processed Text:")
+    st.write(st.session_state["completion_text"])
+    st.image("static/thumbsup.png", width=300, use_column_width="always")
