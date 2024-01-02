@@ -1,3 +1,4 @@
+import gettext
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -11,26 +12,79 @@ from pydub import AudioSegment
 from st_audiorec import st_audiorec
 
 st.set_page_config(
-    page_title="Roland'sTool",
+    page_title="_(Roland'sTool)",
     page_icon=("🤖"),
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
+# Globals
+global _
+_ = gettext.gettext
 
-def display_readme():
+
+def load_language(lang_code):
+    if lang_code == "en":
+        return
+    mo_file_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "locales",
+            lang_code,
+            "LC_MESSAGES",
+            "messages.mo",
+        )
+    )
+    print(f"MO file path: {mo_file_path}")  # Debugging print
+
+    try:
+        with open(mo_file_path, "rb") as mo_file:
+            # Load the .mo file directly
+            localizator = gettext.GNUTranslations(mo_file)
+            localizator.install()
+            global _
+            _ = localizator.gettext
+            print(f"Language loaded: {lang_code}")  # Debugging print
+    except FileNotFoundError as e:
+        print(f"Exception loading MO file: {e}")
+        st.error(f"Exception loading MO file: {e}")
+
+
+# Sidebar for language selection
+
+
+def display_readme(lang_code="en"):
     st.image("static/transcription.svg", width=400, use_column_width="always")
     st.markdown(
+        _(
             """
 # Welcome to Roland Tools
 
-This app transcribe spoken words from any language then make useful notes from it.
+This app transcribes spoken words from any language then makes useful notes from it.
     """
+        )
     )
-    with open("README.md", "r") as file:
+    file_name = "README_JP.md" if lang_code == "ja" else "README.md"
+
+    with open(file_name, "r") as file:
         readme_content = file.read()
-    with st.expander("I need help!"):
+    with st.expander(_("I need help!")):
         st.markdown(readme_content)
+
+
+# Load the appropriate language based on checkbox state
+if st.sidebar.checkbox("🇯🇵 日本語 🇯🇵", key="ja_check"):
+    load_language("ja")
+    if not st.session_state["readme_displayed"]:
+        display_readme(
+            "ja"
+        )  # Pass "en" to indicate English content should be displayed
+else:
+    load_language("en")
+    if not st.session_state["readme_displayed"]:
+        display_readme(
+            "en"
+        )  # Pass "en" to indicate English content should be displayed
 
 
 def transcription(file_path, language="en", prompt="", response_format="text"):
@@ -54,7 +108,7 @@ def get_prompt_choice():
         key: value["description"] for key, value in prompt_options.items()
     }
     return st.selectbox(
-        "Choose prepared AI secretary intructions (Optional):",
+        _("Choose prepared AI secretary intructions (Optional):"),
         key="prompt_box",
         options=formatted_options.values(),
         format_func=lambda x: next(k for k, v in formatted_options.items() if v == x),
@@ -104,7 +158,7 @@ def parallel_transcribe_audio(
             index = futures[future]
             transcriptions[index] = transcription_data
         except Exception as e:
-            st.error(f"An error occurred during transcription: {e}")
+            st.error(_(f"An error occurred during transcription: {e}"))
 
     sorted_transcription_texts = [
         transcriptions[i]
@@ -156,11 +210,12 @@ def get_language_choice():
         "Korean": "ko",
     }
     return st.selectbox(
-        "What is the language of the audio?",
+        _("What is the language of the audio?"),
         options=list(language_options.values()),
         format_func=lambda x: [
             key for key, value in language_options.items() if value == x
         ][0],
+        key="get_language_choice_selctor",
     )
 
 
@@ -174,19 +229,20 @@ with st.sidebar:
         )
     with col2:
         if "OPENAI_API_KEY" in st.secrets:
-            st.write("The OpenAI credentials have been entered for you!")
-            st.write("You are all set!")
+            st.write(_("The OpenAI credentials have been entered for you!"))
+            st.write(_("You are all set!"))
             openai.api_key = st.secrets["OPENAI_API_KEY"]
         else:
-            openai.api_key = st.text_input("Enter OpenAI API token:", type="password")
+            openai.api_key = st.text_input(
+                _("Enter OpenAI API token:"), type="password"
+            )
             if not (openai.api_key.startswith("sk-") and len(openai.api_key) == 51):
-                st.warning("Please enter your credentials!", icon="⚠️")
+                st.warning(_("Please enter your credentials!"), icon="⚠️")
             else:
-                st.success("Proceed to uploading your audio file!", icon="👉")
+                st.success(_("Proceed to uploading your audio file!"), icon="👉")
     "---"
-    st.title("🎧🤖 Transcribe Tool")
-
-    tab1, tab2 = st.tabs(["💽 Upload", "🎙️ Record"])
+    st.title(_("🎧🤖 Transcribe Tool"))
+    tab1, tab2 = st.tabs([_("💽 Upload"), _("🎙️ Record")])
     with tab1:
         uploaded_file = st.file_uploader(
             "File Uploader",
@@ -215,55 +271,63 @@ with st.sidebar:
             language = get_language_choice()
             response_format = "srt" if st.toggle("Transcribe to subtitles") else "text"
             prompt = st.text_area(
-                "Describe the audio (optional):",
-                placeholder="This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland Haller, Alice Ballé…",
-                help="This can help the transcription to be more accurate by providing context and vocabulary.",
+                _("Describe the audio (optional):"),
+                placeholder=_(
+                    "This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland Haller, Alice Ballé…"
+                ),
+                help=_(
+                    "This can help the transcription to be more accurate by providing context and vocabulary."
+                ),
             )
             transcribe_button = st.form_submit_button(
-                "Transcribe audio",
+                _("Transcribe audio"),
                 type="primary",
                 use_container_width=True,
             )
     else:
         transcribe_button_warning = st.button(
-            "Transcribe audio",
+            _("Transcribe audio"),
             type="primary",
             use_container_width=True,
         )
         if transcribe_button_warning:
-            st.error("Please upload a file to transcribe…")
+            st.error(_("Please upload a file to transcribe…"))
     "---"
-    st.title("🤖📝 Secretary Tool")
+    st.title(_("🤖📝 Secretary Tool"))
     prepared_prompt = get_prompt_choice() or ""
     with st.form(key="secretary_form", clear_on_submit=False, border=True):
         processing_prompt = st.text_area(
-            "AI secretary instructions:",
+            _("AI secretary instructions:"),
             value=(f"{prepared_prompt}"),
-            help="Describe what you want your AI secretary to do with the transcribed text: make notes, a poem, a list of groceries, etc.",
+            help=_(
+                "Describe what you want your AI secretary to do with the transcribed text: make notes, a poem, a list of groceries, etc."
+            ),
         )
         model = st.radio(
             "Model",
             ["gpt-4-1106-preview", "gpt-3.5-turbo"],
-            captions=["Best for most tasks", "Best for formatting"],
+            captions=[_("Best for most tasks"), _("Best for formatting")],
             horizontal=True,
         )
         temperature = st.slider(
-            "Originality",
+            _("Originality"),
             min_value=0.1,
             max_value=2.0,
             value=0.7,
             step=0.1,
-            help="This is the originality(temperature) of the openai model. 0 for a deterministic model always answering the same from the same input, 2 is fully free crazy AI completely detached from the input. 0.7 is the default.",
+            help=_(
+                "This is the originality(temperature) of the openai model. 0 for a deterministic model always answering the same from the same input, 2 is fully free crazy AI completely detached from the input. 0.7 is the default."
+            ),
         )
         process_button = st.form_submit_button(
-            "Process text",
+            _("Process text"),
             type="primary",
             use_container_width=True,
         )
-        is_festive = st.checkbox("I am feeling festive!")
+        is_festive = st.checkbox(_("I am feeling festive!"))
 
 if transcribe_button:
-    with st.spinner("Wait for it... our AI is listening!"):
+    with st.spinner(_("Wait for it... our AI is listening!")):
         st.image(
             "static/writing.png",
             width=300,
@@ -288,7 +352,7 @@ if transcribe_button:
     st.success("Done!")
 
 if process_button:
-    with st.spinner("Just a moment... our AI is thinking!"):
+    with st.spinner(_("Just a moment... our AI is thinking!")):
         st.image(
             "static/thinking.png",
             width=300,
@@ -317,8 +381,6 @@ if "readme_displayed" not in st.session_state:
 if st.session_state["transcription_text"]:
     st.session_state["readme_displayed"] = True
 
-if not st.session_state["readme_displayed"]:
-    display_readme()
 
 if st.session_state["transcription_text"]:
     # Determine the file name based on whether the file was uploaded or recorded
@@ -337,14 +399,14 @@ if st.session_state["transcription_text"]:
         data=st.session_state["transcription_text"],
         file_name=transcription_file_name,
     )
-    "You can now process the text with the 'Text processing' tab."
-    st.markdown("# Transcription:")
+    _("You can now process the text with the 'Text processing' tab.")
+    st.markdown(_("# Transcription:"))
     st.write(st.session_state["transcription_text"])
 
 if st.session_state["completion_text"]:
     "---"
     process_download = st.download_button(
-        label="Download processed text",
+        label=_("Download processed text"),
         data=st.session_state["completion_text"],
         file_name=(
             uploaded_file.name.rsplit(".", 1)[0] + "_processed" + ".txt"
@@ -352,6 +414,6 @@ if st.session_state["completion_text"]:
             else "Processed_text.txt"
         ),
     )
-    st.markdown("# Post-processed Text:")
+    st.markdown(_("# Post-processed Text:"))
     st.write(st.session_state["completion_text"])
     st.image("static/thumbsup.png", width=300)

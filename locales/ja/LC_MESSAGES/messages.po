@@ -1,17 +1,18 @@
-# Translations template for PROJECT.
+# Japanese translations for PROJECT.
 # Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-01-02 11:32+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2024-01-02 11:43+0900\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ja\n"
+"Language-Team: ja <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,100 +27,109 @@ msgid ""
 " from it.\n"
 "    "
 msgstr ""
+"\n"
+"# ローランドツールへようこそ\n"
+"\n"
+"このアプリは、どの言語の話し言葉も文字起こしし、それを有益なメモに変えます。\n"
+"    "
 
 #: streamlit_app.py:36
 msgid "I need help!"
-msgstr ""
+msgstr "助けが必要です！"
 
 #: streamlit_app.py:61
 msgid "Choose prepared AI secretary intructions (Optional):"
-msgstr ""
+msgstr "用意されたAI秘書の指示を選択してください（オプショナル）："
 
 #: streamlit_app.py:163
 msgid "What is the language of the audio?"
-msgstr ""
+msgstr "オーディオの言語は何ですか？"
 
 #: streamlit_app.py:181
 msgid "The OpenAI credentials have been entered for you!"
-msgstr ""
+msgstr "OpenAIの資格情報があなたのために入力されました！"
 
 #: streamlit_app.py:182
 msgid "You are all set!"
-msgstr ""
+msgstr "準備完了です！"
 
 #: streamlit_app.py:186
 msgid "Enter OpenAI API token:"
-msgstr ""
+msgstr "OpenAI APIトークンを入力してください："
 
 #: streamlit_app.py:189
 msgid "Please enter your credentials!"
-msgstr ""
+msgstr "資格情報を入力してください！"
 
 #: streamlit_app.py:191
 msgid "Proceed to uploading your audio file!"
-msgstr ""
+msgstr "オーディオファイルのアップロードに進んでください！"
 
 #: streamlit_app.py:193
 msgid "🎧🤖 Transcribe Tool"
-msgstr ""
+msgstr "🎧🤖 文字起こしツール"
 
 #: streamlit_app.py:195
 msgid "💽 Upload"
-msgstr ""
+msgstr "💽 アップロード"
 
 #: streamlit_app.py:195
 msgid "🎙️ Record"
-msgstr ""
+msgstr "🎙️ 録音"
 
 #: streamlit_app.py:224
 msgid "Describe the audio (optional):"
-msgstr ""
+msgstr "オーディオの説明（任意）："
 
 #: streamlit_app.py:225
 msgid ""
 "This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland "
 "Haller, Alice Ballé…"
 msgstr ""
+"これは2人の会話です。用語：ツナガル、ローラン・ハレ、アリス・バレ…"
 
 #: streamlit_app.py:228
 msgid ""
 "This can help the transcription to be more accurate by providing context "
 "and vocabulary."
 msgstr ""
+"これは、文脈と語彙を提供することで、文字起こしの正確性を高めることができます。"
 
 #: streamlit_app.py:233 streamlit_app.py:239
 msgid "Transcribe audio"
-msgstr ""
+msgstr "オーディオを文字起こし"
 
 #: streamlit_app.py:244
 msgid "Please upload a file to transcribe…"
-msgstr ""
+msgstr "文字起こしするためにファイルをアップロードしてください…"
 
 #: streamlit_app.py:246
 msgid "🤖📝 Secretary Tool"
-msgstr ""
+msgstr "🤖📝 秘書ツール"
 
 #: streamlit_app.py:250
 msgid "AI secretary instructions:"
-msgstr ""
+msgstr "AI秘書の指示："
 
 #: streamlit_app.py:252
 msgid ""
 "Describe what you want your AI secretary to do with the transcribed text:"
 " make notes, a poem, a list of groceries, etc."
 msgstr ""
+"AI秘書に文字起こしテキストで何をしてほしいか説明してください："
+"メモを取る、詩を作る、食料品リストを作るなど。"
 
 #: streamlit_app.py:259
 msgid "Best for most tasks"
-msgstr ""
+msgstr "ほとんどのタスクに最適"
 
 #: streamlit_app.py:259
 msgid "Best for formatting"
-msgstr ""
+msgstr "フォーマットに最適"
 
 #: streamlit_app.py:263
 msgid "Originality"
-msgstr ""
+msgstr "独創性"
 
 #: streamlit_app.py:268
 msgid ""
@@ -128,36 +138,36 @@ msgid ""
 "fully free crazy AI completely detached from the input. 0.7 is the "
 "default."
 msgstr ""
+"これはopenaiモデルの独創性（温度）です。0は決定論的なモデルで、同じ入力から常に同じ答えを返し、2は入力から完全に離れた自由奔放な狂気のAIです。デフォルトは0.7です。"
 
 #: streamlit_app.py:273
 msgid "Process text"
-msgstr ""
+msgstr "テキストを処理"
 
 #: streamlit_app.py:277
 msgid "I am feeling festive!"
-msgstr ""
+msgstr "お祭り気分です！"
 
 #: streamlit_app.py:280
 msgid "Wait for it... our AI is listening!"
-msgstr ""
+msgstr "お待ちください... 私たちのAIが聞いています！"
 
 #: streamlit_app.py:305
 msgid "Just a moment... our AI is thinking!"
-msgstr ""
+msgstr "ちょっと待って... 私たちのAIが考えています！"
 
 #: streamlit_app.py:354
 msgid "You can now process the text with the 'Text processing' tab."
-msgstr ""
+msgstr "'テキスト処理'タブでテキストを処理できます。"
 
 #: streamlit_app.py:355
 msgid "# Transcription:"
-msgstr ""
+msgstr "# 文字起こし："
 
 #: streamlit_app.py:361
 msgid "Download processed text"
-msgstr ""
+msgstr "処理済みテキストをダウンロード"
 
 #: streamlit_app.py:369
 msgid "# Post-processed Text:"
-msgstr ""
-
+msgstr "# 処理後のテキスト："
