@@ -11,8 +11,8 @@ from pydub import AudioSegment
 from st_audiorec import st_audiorec
 
 st.set_page_config(
-    page_title="Roland's Tool",
-    page_icon="🤖",
+    page_title="Roland'sTool",
+    page_icon=("🤖"),
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -21,7 +21,7 @@ st.set_page_config(
 def display_readme():
     st.image("static/transcription.svg", width=400, use_column_width="always")
     st.markdown(
-        """
+            """
 # Welcome to Roland Tools
 
 This app transcribe spoken words from any language then make useful notes from it.
@@ -54,7 +54,7 @@ def get_prompt_choice():
         key: value["description"] for key, value in prompt_options.items()
     }
     return st.selectbox(
-        "Choose a prepared prompt(Optional):",
+        "Choose prepared AI secretary intructions (Optional):",
         key="prompt_box",
         options=formatted_options.values(),
         format_func=lambda x: next(k for k, v in formatted_options.items() if v == x),
