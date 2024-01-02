@@ -1,4 +1,5 @@
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from tempfile import mkdtemp
 
@@ -30,15 +31,6 @@ This app transcribe spoken words from any language then make useful notes from i
         readme_content = file.read()
     with st.expander("I need help!"):
         st.markdown(readme_content)
-
-
-# Check if the user has seen the README
-if "readme_displayed" not in st.session_state:
-    st.session_state["readme_displayed"] = False
-
-if not st.session_state["readme_displayed"]:
-    display_readme()
-    st.session_state["readme_displayed"] = True
 
 
 def transcription(file_path, language="en", prompt="", response_format="text"):
@@ -318,6 +310,16 @@ if process_button:
             st.balloons()
     st.success("Done!")
 
+# Check if the user has seen the README
+if "readme_displayed" not in st.session_state:
+    st.session_state["readme_displayed"] = False
+
+if st.session_state["transcription_text"]:
+    st.session_state["readme_displayed"] = True
+
+if not st.session_state["readme_displayed"]:
+    display_readme()
+
 if st.session_state["transcription_text"]:
     # Determine the file name based on whether the file was uploaded or recorded
     file_base_name = (
@@ -352,4 +354,4 @@ if st.session_state["completion_text"]:
     )
     st.markdown("# Post-processed Text:")
     st.write(st.session_state["completion_text"])
-    st.image("static/thumbsup.png", width=300, use_column_width="always")
+    st.image("static/thumbsup.png", width=300)
