@@ -28,67 +28,64 @@ if "readme_displayed" not in st.session_state:
 
 
 def load_language(lang_code):
+    global _  # Declare _ as global at the start of the function
     if lang_code == "en":
-        return
-    mo_file_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "locales",
-            lang_code,
-            "LC_MESSAGES",
-            "messages.mo",
+        _ = gettext.gettext  # Default to built-in gettext for English
+    else:
+        mo_file_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "locales",
+                lang_code,
+                "LC_MESSAGES",
+                "messages.mo",
+            )
         )
-    )
-    print(f"MO file path: {mo_file_path}")  # Debugging print
+        print(f"MO file path: {mo_file_path}")  # Debugging print
 
-    try:
-        with open(mo_file_path, "rb") as mo_file:
-            # Load the .mo file directly
-            localizator = gettext.GNUTranslations(mo_file)
-            localizator.install()
-            global _
-            _ = localizator.gettext
-            print(f"Language loaded: {lang_code}")  # Debugging print
-    except FileNotFoundError as e:
-        print(f"Exception loading MO file: {e}")
-        st.error(f"Exception loading MO file: {e}")
-
-
-# Sidebar for language selection
+        try:
+            with open(mo_file_path, "rb") as mo_file:
+                # Load the .mo file directly
+                localizator = gettext.GNUTranslations(mo_file)
+                localizator.install()
+                _ = (
+                    localizator.gettext
+                )  # Set the _ to the gettext function from localizator
+                print(f"Language loaded: {lang_code}")  # Debugging print
+        except FileNotFoundError as e:
+            print(f"Exception loading MO file: {e}")
+            st.error(f"Exception loading MO file: {e}")
 
 
 def display_readme(lang_code="en"):
-    st.image("static/transcription.svg", width=400, use_column_width="always")
-    st.markdown(
-        _(
-            """
-# Welcome to Roland Tools
+    load_language(lang_code)  # This will set the _ function correctly
 
-This app transcribes spoken words from any language then makes useful notes from it.
-    """
-        )
+    # Use the _() function directly on the strings to be translated
+    welcome_text = _(
+        ""
+        "\n"
+        "# Welcome to Roland Tools\n"
+        "\n"
+        "This app transcribe spoken words from any language then make useful notes"
+        " from it.\n"
+        "    "
     )
-    file_name = "README_JP.md" if lang_code == "ja" else "README.md"
 
+    st.image("static/transcription.svg", width=400, use_column_width="always")
+    st.markdown(welcome_text)
+
+    file_name = "README_JP.md" if lang_code == "ja" else "README.md"
     with open(file_name, "r") as file:
         readme_content = file.read()
     with st.expander(_("I need help!")):
         st.markdown(readme_content)
 
 
-# Load the appropriate language based on checkbox state
+# Checkbox for language selection
 if st.sidebar.checkbox("🇯🇵 日本語 🇯🇵", key="ja_check"):
-    load_language("ja")
-    if not st.session_state["readme_displayed"]:
-        display_readme(
-            "ja"
-        )  # Pass "en" to indicate English content should be displayed
+    display_readme("ja")
 else:
-    load_language("en")
-    if not st.session_state["readme_displayed"]:
-        display_readme(
-            "en"
-        )  # Pass "en" to indicate English content should be displayed
+    display_readme("en")
 
 
 def transcription(file_path, language="en", prompt="", response_format="text"):
