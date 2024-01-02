@@ -22,6 +22,10 @@ st.set_page_config(
 global _
 _ = gettext.gettext
 
+# Initialize session state for transcription text
+if "readme_displayed" not in st.session_state:
+    st.session_state["readme_displayed"] = False
+
 
 def load_language(lang_code):
     if lang_code == "en":
