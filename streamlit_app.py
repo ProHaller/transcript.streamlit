@@ -82,7 +82,7 @@ def display_readme(lang_code="en"):
 
 
 # Checkbox for language selection
-if st.sidebar.checkbox("🇯🇵 日本語 🇯🇵", key="ja_check"):
+if st.sidebar.checkbox(" 日本語 ", key="ja_check"):
     display_readme("ja")
 else:
     display_readme("en")
