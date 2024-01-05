@@ -483,7 +483,7 @@ def transcribe(files, language, prompt, response_format):
 
 
 def display_transcription(texts):
-    st.title(_("Transcription"))
+    st.title(_("🎧🤖 Transcription"))
     for index, (name, trans) in enumerate(texts.items()):
         with st.expander(f"Transcript from {name}"):
             file_extension = "srt" if st.session_state["subtitles"] else ""
@@ -493,7 +493,7 @@ def display_transcription(texts):
 
 
 def display_notes(notes):
-    st.title(_("Secretary Notes"))
+    st.title(_("🤖📝 Secretary Notes"))
     for index, (name, note_info) in enumerate(notes.items()):
         # Check if 'note' key exists in the dictionary
         if "note" in note_info:
