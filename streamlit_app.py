@@ -52,7 +52,6 @@ def timer(func):
     return wrapper
 
 
-@timer
 def validate_password():
     password_input = st.text_input(_("Enter the password please: "), type="password")
     if password_input == st.secrets["PASSWORD"]:
@@ -63,7 +62,6 @@ def validate_password():
         return False
 
 
-@timer
 def check_password():
     if not st.session_state["password_ok"]:
         validate_password()
@@ -100,7 +98,6 @@ def load_language(lang_code):
             st.error(f"Exception loading MO file: {e}")
 
 
-@timer
 def choose_language():
     if st.sidebar.checkbox(" 日本語 ", key="ja_check"):
         load_language("ja")
@@ -110,7 +107,6 @@ def choose_language():
         display_readme("en")
 
 
-@timer
 def display_readme(lang_code="en"):
     load_language(lang_code)  # This will set the _ function correctly
     # Use the _() function directly on the strings to be translated
@@ -133,7 +129,6 @@ def display_readme(lang_code="en"):
             st.markdown(readme_content)
 
 
-@timer
 def check_credentials():
     with st.sidebar:
         if "OPENAI_API_KEY" in st.secrets:
@@ -326,7 +321,7 @@ def upload_reader(uploads):
                 and "name" in upload
                 and "file" in upload
             ):
-                st.write(upload["name"])
+                st.write("💽",upload["name"])
                 st.audio(upload["file"])
     else:
         st.warning("No files uploaded.")
