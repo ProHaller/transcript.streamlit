@@ -124,7 +124,7 @@ def display_readme(lang_code="en"):
             " from it.\n"
             "    "
         )
-        st.image("static/transcription.svg", width=400, use_column_width="always")
+        st.image("static/transcription.svg", width=300)
         st.markdown(welcome_text)
         file_name = "README_JP.md" if lang_code == "ja" else "README.md"
         with open(file_name, "r") as file:
@@ -461,8 +461,7 @@ def set_sidebar():
         with col_logo:
             st.image(
                 "static/logo.png",
-                width=100,
-                use_column_width="always",
+                width=200,
             )
         transcription_param = set_transcription_ui()
         secretary_param = set_secretary_ui()
