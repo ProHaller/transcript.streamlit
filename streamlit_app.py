@@ -314,15 +314,16 @@ def upload_file():
 
 def upload_reader(uploads):
     if uploads:
-        for upload in uploads:
-            if (
-                upload
-                and isinstance(upload, dict)
-                and "name" in upload
-                and "file" in upload
-            ):
-                st.write("💽",upload["name"])
-                st.audio(upload["file"])
+        with st.expander("👂Audio file Uploaded"):
+            for upload in uploads:
+                if (
+                    upload
+                    and isinstance(upload, dict)
+                    and "name" in upload
+                    and "file" in upload
+                ):
+                    st.write("💽", upload["name"])
+                    st.audio(upload["file"])
     else:
         st.warning("No files uploaded.")
 
