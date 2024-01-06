@@ -1,4 +1,3 @@
-import datetime
 import gettext
 import io
 import os
@@ -251,6 +250,7 @@ def get_language_choice():
         "English": "en",
         "Japanese": "ja",
         "French": "fr",
+        "Spanish": "es",
         "Thai": "th",
         "Arabic": "ar",
         "Chinese": "zh",
