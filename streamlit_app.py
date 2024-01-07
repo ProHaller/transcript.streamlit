@@ -71,6 +71,7 @@ def check_password():
         return True
 
 
+@timer
 def load_language(lang_code):
     global _  # Declare _ as global at the start of the function
     if lang_code == "en":
@@ -150,7 +151,10 @@ def check_credentials():
                     return True
 
 
-def transcription(file_path, language="en", prompt="", response_format="text"):
+@timer
+def transcription(
+    file_path, language: str = "en", prompt: str = "", response_format="text"
+):
     client = OpenAI()
     # Open the file and pass the file handle directly
     with open(file_path, "rb") as file_handle:
@@ -166,6 +170,7 @@ def transcription(file_path, language="en", prompt="", response_format="text"):
 
 
 # Function to segment the audio file
+@timer
 @st.cache_data
 def segment_audio(audio_file, segment_duration=60000):
     temp_dir = mkdtemp()
@@ -187,6 +192,7 @@ def segment_audio(audio_file, segment_duration=60000):
 
 
 # Function for parallel audio transcription
+@timer
 def parallel_transcribe_audio(
     file_paths,
     language,
@@ -223,6 +229,7 @@ def parallel_transcribe_audio(
     return full_transcript
 
 
+@timer
 def openai_completion(
     input_text: str,
     system_prompt: str = "You are a helpful assistant that always answers in markdown.",
@@ -278,6 +285,7 @@ def get_prompt_choice():
     )
 
 
+@timer
 def record_audio_input():
     file = {}
     recorded_file = st_audiorec()
@@ -287,6 +295,7 @@ def record_audio_input():
         return file
 
 
+@timer
 def upload_file():
     files = []  # list of dictionaries
     uploaded_files = st.file_uploader(
@@ -328,6 +337,7 @@ def upload_reader(uploads):
         st.warning("No files uploaded.")
 
 
+@timer
 def prepare_audio(files):
     # Check if the files list is empty or contains empty dictionaries
     if not files or all(not file_dict for file_dict in files):
@@ -357,10 +367,11 @@ def prepare_audio(files):
     return prepared_files
 
 
+@timer
 def transcribe_form():
     with st.form(key="transcribe_form", clear_on_submit=False, border=True):
         language = get_language_choice()
-        response_format = "srt" if st.toggle(_("transcribe to subtitles")) else "text"
+        response_format = "srt" if st.toggle(_("Transcribe to subtitles")) else "text"
         print(response_format)
         st.session_state["subtitles"] = response_format
         prompt = st.text_area(
@@ -373,13 +384,14 @@ def transcribe_form():
             ),
         )
         transcribe_button = st.form_submit_button(
-            _("Transcribe audio"),
+            _("Transcribe Audio"),
             type="primary",
             use_container_width=True,
         )
         return transcribe_button, language, response_format, prompt
 
 
+@timer
 def secretary_form(prepared_prompt):
     with st.form(key="secretary_form", clear_on_submit=False, border=True):
         secretary_prompt = st.text_area(
@@ -433,7 +445,7 @@ def set_transcription_ui():
             return segments, language, prompt, response_format
     else:
         transcribe_button_warning = st.button(
-            _("transcribe audio"),
+            _("Transcribe Audio"),
             type="primary",
             use_container_width=True,
         )
@@ -464,6 +476,7 @@ def set_sidebar():
         return transcription_param, secretary_param  # processed_text
 
 
+@timer
 def transcribe(files, language, prompt, response_format):
     transcribed_texts = {}
     with st.spinner(_("Wait for it... our AI is listening!")):
@@ -493,7 +506,7 @@ def display_transcription(texts):
 
 
 def display_notes(notes):
-    st.title(_("🤖📝 Secretary Notes"))
+    st.title(_("🤖📝  Notes"))
     for index, (name, note_info) in enumerate(notes.items()):
         # Check if 'note' key exists in the dictionary
         if "note" in note_info:
@@ -504,6 +517,7 @@ def display_notes(notes):
                 st.write(note)
 
 
+@timer
 def secretary_process(
     transcribed_texts: dict,
     secretary_prompt: str,
@@ -532,6 +546,7 @@ def name_file(file_name, *args, format="txt"):
         return f"{file_name_without_extension}.{format}"
 
 
+@timer
 def download(file, file_name, index):
     # Use both file_name and index to ensure uniqueness
     unique_key = f"download_button_{file_name}_{index}"

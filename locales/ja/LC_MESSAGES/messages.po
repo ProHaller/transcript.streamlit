@@ -40,7 +40,7 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"# ローランドツールへようこそ\n"
+"# ローランツールへようこそ\n"
 "\n"
 "このアプリはどの言語の話し言葉も書き起こし、それを基に役立つメモを作成します。\n"
 "    "
@@ -78,7 +78,7 @@ msgid "Choose prepared AI secretary intructions (Optional):"
 msgstr "用意されたAI秘書の指示を選択してください（任意）："
 
 #: streamlit_app.py:367
-msgid "transcribe to subtitles"
+msgid "Transcribe to subtitles"
 msgstr "字幕に書き起こす"
 
 #: streamlit_app.py:371
@@ -157,7 +157,7 @@ msgid "🎙️ Record"
 msgstr "🎙️ 録音"
 
 #: streamlit_app.py:440
-msgid "transcribe audio"
+msgid "Transcribe Audio"
 msgstr "オーディオを書き起こす"
 
 #: streamlit_app.py:445
@@ -177,8 +177,8 @@ msgid "Transcription"
 msgstr "書き起こし"
 
 #: streamlit_app.py:501
-msgid "Secretary Notes"
-msgstr "秘書のメモ"
+msgid " Notes"
+msgstr "メモ"
 
 #: streamlit_app.py:519
 msgid "Wait for it... our AI is thinking!"
