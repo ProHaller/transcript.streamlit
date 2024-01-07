@@ -2,8 +2,7 @@ Hey there! Let's dive into how to use Roland's Tool, your friendly app for trans
 
 ### Getting Started 🚀
 
-1. **Welcome Screen**: When you first open the app, you'll see a neat welcome screen. Take a moment to read through it; it's got some helpful info.
-2. **Sidebar Fun**: On the left, there's a cool sidebar. Here, you can enter your OpenAI API token (keep it secret!) and choose if you're in a festive mood.
+1. **Sidebar Fun**: On the left, there's a cool sidebar. Here, you can enter your OpenAI API token (keep it secret!) and choose if you're in a festive mood.
 
 ### Transcribe Tool 🎧🤖
 
