@@ -173,12 +173,12 @@ msgid "Wait for it... our AI is listening!"
 msgstr "お待ちください... 私たちのAIが聞いています！"
 
 #: streamlit_app.py:491
-msgid "Transcription"
-msgstr "書き起こし"
+msgid "🎧🤖 Transcription"
+msgstr "🎧🤖 書き起こし"
 
 #: streamlit_app.py:501
-msgid " Notes"
-msgstr "メモ"
+msgid "🤖📝 Notes"
+msgstr "🤖📝 メモ"
 
 #: streamlit_app.py:519
 msgid "Wait for it... our AI is thinking!"

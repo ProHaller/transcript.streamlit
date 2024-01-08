@@ -100,12 +100,18 @@ def load_language(lang_code):
 
 
 def choose_language():
-    if st.sidebar.checkbox(" 日本語 ", key="ja_check"):
-        load_language("ja")
-        display_readme("ja")
-    else:
-        load_language("en")
-        display_readme("en")
+    lang_choice = st.radio(
+        _("Choose Language"),
+        options=["English", "日本語"],
+        index=0,  # Default to English
+        key="lang_choice_radio",
+    )
+
+    lang_code = "en" if lang_choice == "English" else "ja"
+    load_language(lang_code)
+    display_readme(lang_code)
+
+    return lang_choice  # Return the selected language choice
 
 
 def display_readme(lang_code="en"):
@@ -473,7 +479,12 @@ def set_sidebar():
             st.image(
                 "static/logo.png",
                 width=200,
+                use_column_width=True,
             )
+
+        with col_info:
+            # Call the function to display language selector
+            choose_language()
         transcription_param = set_transcription_ui()
         secretary_param = set_secretary_ui()
         return transcription_param, secretary_param  # processed_text
@@ -510,7 +521,7 @@ def display_transcription(texts):
 
 
 def display_notes(notes):
-    st.title(_("🤖📝  Notes"))
+    st.title(_("🤖📝 Notes"))
     for index, (name, note_info) in enumerate(notes.items()):
         if (
             "note" in note_info and note_info["note"]
@@ -595,7 +606,7 @@ def delete(file_name, key, index):
 def main():
     if not check_password():
         st.stop()
-    choose_language()
+    # choose_language()
     if not st.session_state["openai_key"] and not check_credentials():
         st.stop()
 
