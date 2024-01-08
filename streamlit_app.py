@@ -415,7 +415,7 @@ def secretary_form(prepared_prompt):
             ),
         )
         model = st.radio(
-            "Model",
+            _("Model"),
             ["gpt-4-1106-preview", "gpt-3.5-turbo"],
             captions=[_("Best for most tasks"), _("Best for formatting")],
             horizontal=True,
@@ -565,8 +565,8 @@ def secretary_process(
             completion = openai_completion(
                 input_text=prompt, model=model, temperature=temperature
             )
-            notes["AI chat"] = {}
-            notes["AI chat"]["note"] = completion
+            notes[_("AI chat")] = {}
+            notes[_("AI chat")]["note"] = completion
         st.session_state["data"].update(notes)
     return notes
 
@@ -584,7 +584,7 @@ def name_file(file_name, *args, format="txt"):
 def download(file, file_name, index):
     unique_key = f"download_button_{file_name}_{index}"
     st.download_button(
-        label="Download",
+        label=_("Download"),
         data=file,
         file_name=file_name,
         key=unique_key,
@@ -594,7 +594,7 @@ def download(file, file_name, index):
 
 def delete(file_name, key, index):
     unique_key = f"button_{file_name}_{index}"
-    if st.button(label="Delete", key=unique_key):
+    if st.button(label=_("Delete"), key=unique_key):
         # Check if file_name exists and key is valid
         if (
             file_name in st.session_state["data"]
@@ -614,30 +614,48 @@ def feedback():
         st.session_state["show_form"] = False
 
     # Button to toggle the feedback form
-    if st.button("Write feedback"):
+    if st.button(_("Write feedback")):
         st.session_state["show_form"] = not st.session_state["show_form"]
 
     # Feedback form will be displayed based on the 'show_form' state
     if st.session_state["show_form"]:
         with st.form(key="feedback_form"):
-            sender = st.text_input(label="Name", placeholder="Alice")
-            subject = st.text_input(label="Subject", placeholder="This is awesome!")
-            body_text = st.text_area(
-                label="Feedback", placeholder="I love everything about this app."
+            body_text = ""
+            sender = st.text_input(label=_("Name"), placeholder=_("Alice"))
+            subject = st.text_input(
+                label=_("Subject"), placeholder=_("This is awesome!")
             )
-            submit_feedback = st.form_submit_button("Send Feedback")
-
+            message = "Message:\n " + st.text_area(
+                label="Feedback",
+                placeholder="I love everything about this app.",
+                key="message",
+            )
+            include_data = st.checkbox(
+                label="Include data",
+                key="data_checkbox",
+            )
+            if include_data:
+                body_text = (
+                    message
+                    + "Data:\n "
+                    + (
+                        str(st.session_state["data"])
+                        if st.session_state["data"]
+                        else "No data available"
+                    )
+                )
+            elif not include_data:
+                body_text = message + "\n\nNo data shared"
+            submit_feedback = st.form_submit_button(_("Send Feedback"))
             if submit_feedback:
                 if (
                     sender and subject and body_text
                 ):  # Simple validation to ensure fields are filled
-                    with st.spinner("sending..."):
+                    with st.spinner(_("Sending feedback...")):
                         send_email(sender, subject, body_text)
-                        st.success("Thank you for your feedback!")
-                        # Optionally reset the form state after submission
-                        st.session_state["show_form"] = False
+                        st.success(_("Thank you for your feedback!"))
                 else:
-                    st.error("Please fill in all fields.")
+                    st.error(_("Please fill in all fields."))
 
 
 def send_email(sender, subject, body_text):
