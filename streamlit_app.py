@@ -619,7 +619,7 @@ def feedback():
 
     # Feedback form will be displayed based on the 'show_form' state
     if st.session_state["show_form"]:
-        with st.form(key="feedback_form", clear_on_submit=True):
+        with st.form(key="feedback_form"):
             sender = st.text_input(label="Name", placeholder="Alice")
             subject = st.text_input(label="Subject", placeholder="This is awesome!")
             body_text = st.text_area(
@@ -631,10 +631,11 @@ def feedback():
                 if (
                     sender and subject and body_text
                 ):  # Simple validation to ensure fields are filled
-                    send_email(sender, subject, body_text)
-                    st.success("Thank you for your feedback!")
-                    # Optionally reset the form state after submission
-                    st.session_state["show_form"] = False
+                    with st.spinner("sending..."):
+                        send_email(sender, subject, body_text)
+                        st.success("Thank you for your feedback!")
+                        # Optionally reset the form state after submission
+                        st.session_state["show_form"] = False
                 else:
                     st.error("Please fill in all fields.")
 
