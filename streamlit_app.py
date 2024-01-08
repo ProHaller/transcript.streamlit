@@ -99,17 +99,18 @@ def load_language(lang_code):
             st.error(f"Exception loading MO file: {e}")
 
 
-def choose_language():
+def choose_language(unique_id):
     lang_choice = st.radio(
         _("Choose Language"),
         options=["English", "日本語"],
-        index=0,  # Default to English
-        key="lang_choice_radio",
+        index=0,
+        key=f"lang_choice_radio_{unique_id}",  # Ensure unique key
     )
 
     lang_code = "en" if lang_choice == "English" else "ja"
     load_language(lang_code)
-    display_readme(lang_code)
+
+    return lang_code  # Return the selected language code
 
     return lang_choice  # Return the selected language choice
 
@@ -484,10 +485,10 @@ def set_sidebar():
 
         with col_info:
             # Call the function to display language selector
-            choose_language()
+            language = choose_language("col_info")
         transcription_param = set_transcription_ui()
         secretary_param = set_secretary_ui()
-        return transcription_param, secretary_param  # processed_text
+        return language, transcription_param, secretary_param  # processed_text
 
 
 @timer
@@ -610,7 +611,10 @@ def main():
     if not st.session_state["openai_key"] and not check_credentials():
         st.stop()
 
-    transcription_param, secretary_param = set_sidebar()
+    language, transcription_param, secretary_param = set_sidebar()
+
+    # Get the selected language from the sidebar and then display the README in the main section
+    display_readme(language)
     transcribed_texts = {}
     notes = {}
 
