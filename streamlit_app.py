@@ -649,7 +649,7 @@ def send_email(sender, subject, body_text):
     message = MIMEMultipart()
     message["From"] = st.secrets["EMAIL_ADDRESS"]
     message["To"] = st.secrets["EMAIL_ADDRESS"]
-    message["Subject"] = f"{sender}: {subject}"
+    message["Subject"] = f"Roland's Tool feedback from {sender} on {subject}"
     message.attach(MIMEText(body_text, "plain"))
 
     with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
