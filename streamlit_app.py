@@ -1,4 +1,5 @@
 import gettext
+from typing import Literal
 import io
 import os
 import time
@@ -153,7 +154,10 @@ def check_credentials():
 
 @timer
 def transcription(
-    file_path, language: str = "en", prompt: str = "", response_format="text"
+    file_path,
+    language: str = "en",
+    prompt: str = "",
+    response_format: Literal["json", "text", "srt", "verbose_json", "vtt"] = "text",
 ):
     client = OpenAI()
     # Open the file and pass the file handle directly
@@ -372,7 +376,6 @@ def transcribe_form():
     with st.form(key="transcribe_form", clear_on_submit=False, border=True):
         language = get_language_choice()
         response_format = "srt" if st.toggle(_("Transcribe to subtitles")) else "text"
-        print(response_format)
         st.session_state["subtitles"] = response_format
         prompt = st.text_area(
             _("Describe the audio (optional):"),
@@ -489,32 +492,34 @@ def transcribe(files, language, prompt, response_format):
                 transcribed_texts[file_name] = {"transcript": transcribed_text}
             except Exception as e:
                 st.error(_(f"An error occurred during transcription: {e}"))
-        st.session_state["data"] = transcribed_texts
+        st.session_state["data"].update(transcribed_texts)
+        st.success("Done!")
         return transcribed_texts
-
-    st.success("Done!")
 
 
 def display_transcription(texts):
     st.title(_("🎧🤖 Transcription"))
     for index, (name, trans) in enumerate(texts.items()):
-        with st.expander(f"Transcript from {name}"):
-            file_extension = "srt" if st.session_state["subtitles"] else ""
-            file_name = name_file(name, "transcription", format=file_extension)
-            download(trans["transcript"], file_name, index)
-            st.write(trans["transcript"])
+        if "transcript" in trans and trans["transcript"] is not None:
+            with st.expander(f"Transcript from {name}"):
+                file_extension = "srt" if st.session_state["subtitles"] else ""
+                file_name = name_file(name, "transcription", format=file_extension)
+                download(trans["transcript"], file_name, index)
+                st.write(trans["transcript"])
+                delete(name, "transcript", f"{name}transcript")
 
 
 def display_notes(notes):
     st.title(_("🤖📝  Notes"))
     for index, (name, note_info) in enumerate(notes.items()):
-        # Check if 'note' key exists in the dictionary
-        if "note" in note_info:
-            note = note_info["note"]
+        if (
+            "note" in note_info and note_info["note"]
+        ):  # Check if note exists and is not empty
             with st.expander(_(f"Secretary note from {name}")):
                 file_name = name_file(name, "notes")
-                download(note, file_name, index)
-                st.write(note)
+                download(note_info["note"], file_name, index)
+                st.write(note_info["note"])
+                delete(name, "note", f"{name}notes")
 
 
 @timer
@@ -524,16 +529,29 @@ def secretary_process(
     model: str,
     temperature: float,
 ):
-    notes = transcribed_texts
+    notes = transcribed_texts or {}
     with st.spinner(_("Wait for it... our AI is thinking!")):
-        for name, trans in transcribed_texts.items():
-            for _osef, text in trans.items():
-                prompt = text + "\n" + secretary_prompt
+        if transcribed_texts:
+            for name, trans in transcribed_texts.items():
+                completion = ""
+                print("name\n", name, "\ntrans\n", trans)
+                if "transcript" in trans:
+                    prompt = f"```\n{trans['transcript']}``` \n{secretary_prompt}"
+                else:
+                    prompt = secretary_prompt
                 completion = openai_completion(
                     input_text=prompt, model=model, temperature=temperature
                 )
-            notes[name]["note"] = completion
-        st.session_state["data"] = notes
+                notes[name]["note"] = completion
+                print(notes)
+        else:
+            prompt = secretary_prompt
+            completion = openai_completion(
+                input_text=prompt, model=model, temperature=temperature
+            )
+            notes["AI chat"] = {}
+            notes["AI chat"]["note"] = completion
+        st.session_state["data"].update(notes)
     return notes
 
 
@@ -548,14 +566,30 @@ def name_file(file_name, *args, format="txt"):
 
 @timer
 def download(file, file_name, index):
-    # Use both file_name and index to ensure uniqueness
     unique_key = f"download_button_{file_name}_{index}"
     st.download_button(
         label="Download",
         data=file,
         file_name=file_name,
-        key=unique_key,  # Updated unique key
+        key=unique_key,
+        type="primary",
     )
+
+
+def delete(file_name, key, index):
+    unique_key = f"button_{file_name}_{index}"
+    if st.button(label="Delete", key=unique_key):
+        # Check if file_name exists and key is valid
+        if (
+            file_name in st.session_state["data"]
+            and key in st.session_state["data"][file_name]
+        ):
+            # Set the specific key (transcript or note) to None or empty string
+            st.session_state["data"][file_name][key] = None
+            # Optional: Clean up if both transcript and note are None or empty
+            if not any(st.session_state["data"][file_name].values()):
+                st.session_state["data"].pop(file_name)
+        st.rerun()
 
 
 def main():
@@ -573,7 +607,7 @@ def main():
     if transcription_param:
         files, language, response_format, prompt = transcription_param
         transcribed_texts = transcribe(files, language, response_format, prompt)
-        st.session_state["data"] = transcribed_texts
+        st.session_state["data"].update(transcribed_texts)
 
     # Secretary Processing
     if secretary_param:
@@ -584,7 +618,7 @@ def main():
             model,
             temperature,
         )
-        st.session_state["data"] = notes
+        st.session_state["data"].update(notes)
         if is_festive:
             st.balloons()
 
