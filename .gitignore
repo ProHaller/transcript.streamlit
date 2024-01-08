@@ -5,3 +5,4 @@ test_app.py
 .DS_Store
 Session.vim
 pyrightconfig.json
+smtp-test.py

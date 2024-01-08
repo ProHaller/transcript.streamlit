@@ -1,4 +1,7 @@
 import gettext
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Literal
 import io
 import os
@@ -488,6 +491,7 @@ def set_sidebar():
             language = choose_language("col_info")
         transcription_param = set_transcription_ui()
         secretary_param = set_secretary_ui()
+        feedback()
         return language, transcription_param, secretary_param  # processed_text
 
 
@@ -602,6 +606,59 @@ def delete(file_name, key, index):
             if not any(st.session_state["data"][file_name].values()):
                 st.session_state["data"].pop(file_name)
         st.rerun()
+
+
+def feedback():
+    # Check if 'show_form' is already in the session state
+    if "show_form" not in st.session_state:
+        st.session_state["show_form"] = False
+
+    # Button to toggle the feedback form
+    if st.button("Write feedback"):
+        st.session_state["show_form"] = not st.session_state["show_form"]
+
+    # Feedback form will be displayed based on the 'show_form' state
+    if st.session_state["show_form"]:
+        with st.form(key="feedback_form", clear_on_submit=True):
+            sender = st.text_input(label="Name", placeholder="Alice")
+            subject = st.text_input(label="Subject", placeholder="This is awesome!")
+            body_text = st.text_area(
+                label="Feedback", placeholder="I love everything about this app."
+            )
+            submit_feedback = st.form_submit_button("Send Feedback")
+
+            if submit_feedback:
+                if (
+                    sender and subject and body_text
+                ):  # Simple validation to ensure fields are filled
+                    send_email(sender, subject, body_text)
+                    st.success("Thank you for your feedback!")
+                    # Optionally reset the form state after submission
+                    st.session_state["show_form"] = False
+                else:
+                    st.error("Please fill in all fields.")
+
+
+def send_email(sender, subject, body_text):
+    SMTP_SERVER = st.secrets["SMTP_SERVER"]
+    SMTP_PORT = st.secrets["SMTP_PORT"]
+    EMAIL_ADDRESS = st.secrets["EMAIL_ADDRESS"]
+    EMAIL_PASSWORD = st.secrets["EMAIL_PASSWORD"]
+    print("Parameters", SMTP_SERVER, SMTP_PORT, EMAIL_ADDRESS, EMAIL_PASSWORD)
+    print("arguments", sender, subject, body_text)
+    message = MIMEMultipart()
+    message["From"] = st.secrets["EMAIL_ADDRESS"]
+    message["To"] = st.secrets["EMAIL_ADDRESS"]
+    message["Subject"] = f"{sender}: {subject}"
+    message.attach(MIMEText(body_text, "plain"))
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.ehlo()
+        server.starttls()
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.send_message(message)
+
+    print("Email sent successfully")
 
 
 def main():
