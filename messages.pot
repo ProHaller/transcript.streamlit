@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-08 17:45+0900\n"
+"POT-Creation-Date: 2024-01-11 00:19+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: streamlit_app.py:59
+#: streamlit_app.py:64
 msgid "Enter the password please: "
 msgstr ""
 
-#: streamlit_app.py:64
+#: streamlit_app.py:69
 msgid "Incorrect password. Try again."
 msgstr ""
 
-#: streamlit_app.py:72
+#: streamlit_app.py:77
 msgid "Correct password entered."
 msgstr ""
 
-#: streamlit_app.py:107
+#: streamlit_app.py:112
 msgid "Choose Language"
 msgstr ""
 
-#: streamlit_app.py:125
+#: streamlit_app.py:128
 msgid ""
 "\n"
 "# Welcome to Roland Tools\n"
@@ -43,89 +43,89 @@ msgid ""
 "    "
 msgstr ""
 
-#: streamlit_app.py:139
+#: streamlit_app.py:142
 msgid "I need help!"
 msgstr ""
 
-#: streamlit_app.py:146
+#: streamlit_app.py:149
 msgid "The OpenAI credentials have been entered for you!"
 msgstr ""
 
-#: streamlit_app.py:147
+#: streamlit_app.py:150
 msgid "You are all set!"
 msgstr ""
 
-#: streamlit_app.py:154
+#: streamlit_app.py:157
 msgid "Enter OpenAI API token:"
 msgstr ""
 
-#: streamlit_app.py:157
+#: streamlit_app.py:160
 msgid "Please enter your credentials!"
 msgstr ""
 
-#: streamlit_app.py:161
+#: streamlit_app.py:164
 msgid "Proceed to uploading your audio file!"
 msgstr ""
 
-#: streamlit_app.py:281
+#: streamlit_app.py:284
 msgid "What is the language of the audio?"
 msgstr ""
 
-#: streamlit_app.py:295
+#: streamlit_app.py:298
 msgid "Choose prepared AI secretary intructions (Optional):"
 msgstr ""
 
-#: streamlit_app.py:388
+#: streamlit_app.py:391
 msgid "Transcribe to subtitles"
 msgstr ""
 
-#: streamlit_app.py:391
+#: streamlit_app.py:394
 msgid "Describe the audio (optional):"
 msgstr ""
 
-#: streamlit_app.py:392
+#: streamlit_app.py:395
 msgid ""
 "This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland "
 "Haller, Alice Ballé…"
 msgstr ""
 
-#: streamlit_app.py:395
+#: streamlit_app.py:398
 msgid ""
 "This can help the transcription to be more accurate by providing context "
 "and vocabulary."
 msgstr ""
 
-#: streamlit_app.py:400 streamlit_app.py:461
+#: streamlit_app.py:403 streamlit_app.py:464
 msgid "Transcribe Audio"
 msgstr ""
 
-#: streamlit_app.py:411
+#: streamlit_app.py:414
 msgid "AI secretary instructions:"
 msgstr ""
 
-#: streamlit_app.py:413
+#: streamlit_app.py:416
 msgid ""
 "Describe what you want your AI secretary to do with the transcribed text:"
 " make notes, a poem, a list of groceries, etc."
 msgstr ""
 
-#: streamlit_app.py:418
+#: streamlit_app.py:421
 msgid "Model"
 msgstr ""
 
-#: streamlit_app.py:420
+#: streamlit_app.py:423
 msgid "Best for most tasks"
 msgstr ""
 
-#: streamlit_app.py:420
+#: streamlit_app.py:423
 msgid "Best for formatting"
 msgstr ""
 
-#: streamlit_app.py:424
+#: streamlit_app.py:427
 msgid "Originality"
 msgstr ""
 
-#: streamlit_app.py:429
+#: streamlit_app.py:432
 msgid ""
 "This is the originality(temperature) of the openai model. 0 for a "
 "deterministic model always answering the same from the same input, 2 is "
@@ -133,95 +133,107 @@ msgid ""
 "default."
 msgstr ""
 
-#: streamlit_app.py:434
+#: streamlit_app.py:437
 msgid "Process text"
 msgstr ""
 
-#: streamlit_app.py:438
+#: streamlit_app.py:441
 msgid "I am feeling festive!"
 msgstr ""
 
-#: streamlit_app.py:443
+#: streamlit_app.py:446
 msgid "🎧🤖 Transcribe Tool"
 msgstr ""
 
-#: streamlit_app.py:444
+#: streamlit_app.py:447
 msgid "💽 Upload"
 msgstr ""
 
-#: streamlit_app.py:444
+#: streamlit_app.py:447
 msgid "🎙️ Record"
 msgstr ""
 
-#: streamlit_app.py:466
+#: streamlit_app.py:469
 msgid "please upload a file to transcribe…"
 msgstr ""
 
-#: streamlit_app.py:470
+#: streamlit_app.py:473
 msgid "🤖📝 Secretary Tool"
 msgstr ""
 
-#: streamlit_app.py:501
+#: streamlit_app.py:495
+msgid "🤖 Application"
+msgstr ""
+
+#: streamlit_app.py:495
+msgid "⚙️  Account"
+msgstr ""
+
+#: streamlit_app.py:509
 msgid "Wait for it... our AI is listening!"
 msgstr ""
 
-#: streamlit_app.py:517
+#: streamlit_app.py:525
 msgid "🎧🤖 Transcription"
 msgstr ""
 
-#: streamlit_app.py:529
+#: streamlit_app.py:537
 msgid "🤖📝 Notes"
 msgstr ""
 
-#: streamlit_app.py:549
+#: streamlit_app.py:557
 msgid "Wait for it... our AI is thinking!"
 msgstr ""
 
-#: streamlit_app.py:568 streamlit_app.py:569
+#: streamlit_app.py:576 streamlit_app.py:577
 msgid "AI chat"
 msgstr ""
 
-#: streamlit_app.py:587
+#: streamlit_app.py:595
 msgid "Download"
 msgstr ""
 
-#: streamlit_app.py:597
+#: streamlit_app.py:605
 msgid "Delete"
 msgstr ""
 
-#: streamlit_app.py:617
+#: streamlit_app.py:625
 msgid "Write feedback"
 msgstr ""
 
-#: streamlit_app.py:624
+#: streamlit_app.py:632
 msgid "Name"
 msgstr ""
 
-#: streamlit_app.py:624
+#: streamlit_app.py:632
 msgid "Alice"
 msgstr ""
 
-#: streamlit_app.py:626
+#: streamlit_app.py:634
 msgid "Subject"
 msgstr ""
 
-#: streamlit_app.py:626
+#: streamlit_app.py:634
 msgid "This is awesome!"
 msgstr ""
 
-#: streamlit_app.py:649
+#: streamlit_app.py:657
 msgid "Send Feedback"
 msgstr ""
 
-#: streamlit_app.py:654
+#: streamlit_app.py:662
 msgid "Sending feedback..."
 msgstr ""
 
-#: streamlit_app.py:656
+#: streamlit_app.py:664
 msgid "Thank you for your feedback!"
 msgstr ""
 
-#: streamlit_app.py:658
+#: streamlit_app.py:666
 msgid "Please fill in all fields."
+msgstr ""
+
+#: streamlit_app.py:688
+msgid "Email sent successfully"
 msgstr ""
 

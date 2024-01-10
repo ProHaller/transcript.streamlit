@@ -492,7 +492,7 @@ def set_sidebar():
         with col_info:
             # Call the function to display language selector
             language = choose_language("col_info")
-        tab_application, tab_account = st.tabs(["🤖 Application", "⚙️  Account"])
+        tab_application, tab_account = st.tabs([_("🤖 Application"), _("⚙️  Account")])
         with tab_application:
             transcription_param = set_transcription_ui()
             secretary_param = set_secretary_ui()
@@ -685,7 +685,7 @@ def send_email(sender, subject, body_text):
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(message)
 
-    print("Email sent successfully")
+    print(_("Email sent successfully"))
 
 
 def main():
