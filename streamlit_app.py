@@ -1,20 +1,21 @@
-import gettext
-import smtplib
+from concurrent.futures import ThreadPoolExecutor
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Literal
+import gettext
 import io
 import os
-import time
-from concurrent.futures import ThreadPoolExecutor
+import smtplib
 from tempfile import mkdtemp
+import time
+from typing import Literal
 
+import logins
 import openai
-import streamlit as st
-import toml
 from openai import OpenAI
 from pydub import AudioSegment
 from st_audiorec import st_audiorec
+import streamlit as st
+import toml
 
 st.set_page_config(
     page_title="_(Roland'sTool)",
@@ -40,6 +41,10 @@ if "data" not in st.session_state:
 
 global _  # Declare _ as global at the start of the function
 _ = gettext.gettext  # Default to built-in gettext for English
+
+# if "authenticator" not in st.session_state:
+#     authenticator = logins.initiate()
+# print(st.session_state["authenticator"])
 
 
 # function to decorate and gather the time took by each function
@@ -114,8 +119,6 @@ def choose_language(unique_id):
     load_language(lang_code)
 
     return lang_code  # Return the selected language code
-
-    return lang_choice  # Return the selected language choice
 
 
 def display_readme(lang_code="en"):
@@ -489,9 +492,14 @@ def set_sidebar():
         with col_info:
             # Call the function to display language selector
             language = choose_language("col_info")
-        transcription_param = set_transcription_ui()
-        secretary_param = set_secretary_ui()
-        feedback()
+        tab_application, tab_account = st.tabs(["🤖 Application", "⚙️  Account"])
+        with tab_application:
+            transcription_param = set_transcription_ui()
+            secretary_param = set_secretary_ui()
+            feedback()
+        with tab_account:
+            logins.logout()
+            logins.change_password()
         return language, transcription_param, secretary_param  # processed_text
 
 
@@ -683,10 +691,12 @@ def send_email(sender, subject, body_text):
 def main():
     if not check_password():
         st.stop()
-    # choose_language()
     if not st.session_state["openai_key"] and not check_credentials():
         st.stop()
 
+    logged_in = logins.main()
+    if not logged_in:
+        st.stop()
     language, transcription_param, secretary_param = set_sidebar()
 
     # Get the selected language from the sidebar and then display the README in the main section

@@ -6,3 +6,4 @@ test_app.py
 Session.vim
 pyrightconfig.json
 smtp-test.py
+__pycache__

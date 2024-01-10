@@ -1,0 +1,20 @@
+cookie:
+  expiry_days: 30
+  key: Roland_is_awesome_and_so_are_you_if_you_read_this
+  name: Roland_delicious_cookie
+credentials:
+  usernames:
+    benoit:
+      email: Haller.Roland+benoit@gmail.com
+      name: "Beno\xEEt"
+      password: $2b$12$Gf/.tTrbpbqsvsxK7iSc5ehEO85HdBA7eHy9efIofJHJn/vDun6QK
+    julien:
+      email: linglain.julien@gmail.com
+      name: Julien Lingain
+      password: $2b$12$iyvpi2AnaBfZWEVVNuFYzOnOc1wRYvnUFTltu9Sq7lH6/NQD6cI6m
+    roland:
+      email: haller.roland@gmail.com
+      name: Roland Haller
+      password: $2b$12$sFtSBe/Vc7uUuN3eqYRlJeaZ3/ec3vXpcyylHo3tHsQAq/FqHtoD2
+preauthorized:
+  emails: []
