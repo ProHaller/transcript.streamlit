@@ -416,7 +416,7 @@ def secretary_form(prepared_prompt):
         )
         model = st.radio(
             _("Model"),
-            ["gpt-4-1106-preview", "gpt-3.5-turbo"],
+            ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"],
             captions=[_("Best for most tasks"), _("Best for formatting")],
             horizontal=True,
         )
