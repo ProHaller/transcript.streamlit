@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-11 00:19+0900\n"
+"POT-Creation-Date: 2024-01-14 15:43+0900\n"
 "PO-Revision-Date: 2024-01-08 17:46+0900\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
@@ -18,23 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: streamlit_app.py:64
-msgid "Enter the password please: "
-msgstr "パスワードを入力してください："
-
-#: streamlit_app.py:69
-msgid "Incorrect password. Try again."
-msgstr "パスワードが間違っています。再試行してください。"
-
-#: streamlit_app.py:77
-msgid "Correct password entered."
-msgstr "正しいパスワードが入力されました。"
-
-#: streamlit_app.py:112
+#: streamlit_app.py:81
 msgid "Choose Language"
 msgstr "言語を選択"
 
-#: streamlit_app.py:128
+#: streamlit_app.py:97
 msgid ""
 "\n"
 "# Welcome to Roland Tools\n"
@@ -49,89 +37,89 @@ msgstr ""
 "このアプリはどの言語の話された言葉も書き起こし、それを基に役立つメモを作成します。\n"
 "    "
 
-#: streamlit_app.py:142
+#: streamlit_app.py:111
 msgid "I need help!"
 msgstr "助けが必要です！"
 
-#: streamlit_app.py:149
+#: streamlit_app.py:118
 msgid "The OpenAI credentials have been entered for you!"
 msgstr "OpenAIの認証情報があなたのために入力されました！"
 
-#: streamlit_app.py:150
+#: streamlit_app.py:119
 msgid "You are all set!"
 msgstr "準備完了です！"
 
-#: streamlit_app.py:157
+#: streamlit_app.py:126
 msgid "Enter OpenAI API token:"
 msgstr "OpenAI APIトークンを入力してください："
 
-#: streamlit_app.py:160
+#: streamlit_app.py:129
 msgid "Please enter your credentials!"
 msgstr "認証情報を入力してください！"
 
-#: streamlit_app.py:164
+#: streamlit_app.py:133
 msgid "Proceed to uploading your audio file!"
 msgstr "オーディオファイルのアップロードに進んでください！"
 
-#: streamlit_app.py:284
+#: streamlit_app.py:249
 msgid "What is the language of the audio?"
 msgstr "オーディオの言語は何ですか？"
 
-#: streamlit_app.py:298
+#: streamlit_app.py:263
 msgid "Choose prepared AI secretary intructions (Optional):"
 msgstr "準備されたAI秘書の指示を選択してください（任意）："
 
-#: streamlit_app.py:391
+#: streamlit_app.py:361
 msgid "Transcribe to subtitles"
 msgstr "字幕に書き起こす"
 
-#: streamlit_app.py:394
+#: streamlit_app.py:364
 msgid "Describe the audio (optional):"
 msgstr "オーディオを説明してください（任意）："
 
-#: streamlit_app.py:395
+#: streamlit_app.py:365
 msgid ""
 "This is a conversation between 2 people. Vocabulary: Tsunagaru, Roland "
 "Haller, Alice Ballé…"
 msgstr "これは2人の会話です。語彙：ツナガル、ローラン・ハレ、アリス・バレ…"
 
-#: streamlit_app.py:398
+#: streamlit_app.py:368
 msgid ""
 "This can help the transcription to be more accurate by providing context "
 "and vocabulary."
 msgstr "これにより、コンテキストと語彙を提供することで、書き起こしがより正確になることがあります。"
 
-#: streamlit_app.py:403 streamlit_app.py:464
+#: streamlit_app.py:373 streamlit_app.py:433
 msgid "Transcribe Audio"
 msgstr "オーディオを書き起こす"
 
-#: streamlit_app.py:414
+#: streamlit_app.py:383
 msgid "AI secretary instructions:"
 msgstr "AI秘書の指示："
 
-#: streamlit_app.py:416
+#: streamlit_app.py:385
 msgid ""
 "Describe what you want your AI secretary to do with the transcribed text:"
 " make notes, a poem, a list of groceries, etc."
 msgstr "書き起こしたテキストでAI秘書に何をしてほしいか説明してください：メモを取る、詩を書く、食料品リストを作るなど。"
 
-#: streamlit_app.py:421
+#: streamlit_app.py:390
 msgid "Model"
 msgstr "モデル"
 
-#: streamlit_app.py:423
+#: streamlit_app.py:392
 msgid "Best for most tasks"
 msgstr "ほとんどのタスクに最適"
 
-#: streamlit_app.py:423
+#: streamlit_app.py:392
 msgid "Best for formatting"
 msgstr "フォーマットに最適"
 
-#: streamlit_app.py:427
+#: streamlit_app.py:396
 msgid "Originality"
 msgstr "独創性"
 
-#: streamlit_app.py:432
+#: streamlit_app.py:401
 msgid ""
 "This is the originality(temperature) of the openai model. 0 for a "
 "deterministic model always answering the same from the same input, 2 is "
@@ -139,107 +127,122 @@ msgid ""
 "default."
 msgstr "これはopenaiモデルの独創性（温度）です。0は決定論的モデルで、同じ入力に対して常に同じ答えを返します。2は入力から完全に切り離された完全に自由なクレイジーAIです。デフォルトは0.7です。"
 
-#: streamlit_app.py:437
+#: streamlit_app.py:406
 msgid "Process text"
 msgstr "テキストを処理する"
 
-#: streamlit_app.py:441
+#: streamlit_app.py:410
 msgid "I am feeling festive!"
 msgstr "お祝いの気分です！"
 
-#: streamlit_app.py:446
+#: streamlit_app.py:415
 msgid "🎧🤖 Transcribe Tool"
 msgstr "🎧🤖 書き起こしツール"
 
-#: streamlit_app.py:447
+#: streamlit_app.py:416
 msgid "💽 Upload"
 msgstr "💽 アップロード"
 
-#: streamlit_app.py:447
+#: streamlit_app.py:416
 msgid "🎙️ Record"
 msgstr "🎙️ 録音"
 
-#: streamlit_app.py:469
+#: streamlit_app.py:438
 msgid "please upload a file to transcribe…"
 msgstr "書き起こすファイルをアップロードしてください…"
 
-#: streamlit_app.py:473
+#: streamlit_app.py:442
 msgid "🤖📝 Secretary Tool"
 msgstr "🤖📝 秘書ツール"
 
-#: streamlit_app.py:495
-msgid "🤖 Application"
-msgstr "🤖 アプリ"
-
-#: streamlit_app.py:495
-msgid "⚙️  Account"
-msgstr "⚙️  設定"
-
-#: streamlit_app.py:509
+#: streamlit_app.py:476
 msgid "Wait for it... our AI is listening!"
 msgstr "お待ちください…AIが聞いています！"
 
-#: streamlit_app.py:525
+#: streamlit_app.py:503
 msgid "🎧🤖 Transcription"
 msgstr "🎧🤖 書き起こし"
 
-#: streamlit_app.py:537
+#: streamlit_app.py:545
+#, fuzzy
+msgid "download"
+msgstr "ダウンロード"
+
+#: streamlit_app.py:554 streamlit_app.py:805
+msgid "🕰️ History"
+msgstr "🕰️ 書き起こし歴"
+
+#: streamlit_app.py:570
 msgid "🤖📝 Notes"
 msgstr "🤖📝 メモ"
 
-#: streamlit_app.py:557
+#: streamlit_app.py:600
 msgid "Wait for it... our AI is thinking!"
 msgstr "お待ちください…AIが考えています！"
 
-#: streamlit_app.py:576 streamlit_app.py:577
+#: streamlit_app.py:618
 msgid "AI chat"
 msgstr "AIチャット"
 
-#: streamlit_app.py:595
+#: streamlit_app.py:654
 msgid "Download"
 msgstr "ダウンロード"
 
-#: streamlit_app.py:605
+#: streamlit_app.py:664
 msgid "Delete"
 msgstr "削除"
 
-#: streamlit_app.py:625
+#: streamlit_app.py:684
 msgid "Write feedback"
 msgstr "フィードバックを書く"
 
-#: streamlit_app.py:632
+#: streamlit_app.py:691
 msgid "Name"
 msgstr "名前"
 
-#: streamlit_app.py:632
+#: streamlit_app.py:691
 msgid "Alice"
 msgstr "アリス"
 
-#: streamlit_app.py:634
+#: streamlit_app.py:693
 msgid "Subject"
 msgstr "件名"
 
-#: streamlit_app.py:634
+#: streamlit_app.py:693
 msgid "This is awesome!"
 msgstr "このアプリは素晴らしいです！"
 
-#: streamlit_app.py:657
+#: streamlit_app.py:716
 msgid "Send Feedback"
 msgstr "フィードバックを送る"
 
-#: streamlit_app.py:662
+#: streamlit_app.py:721
 msgid "Sending feedback..."
 msgstr "フィードバックを送信中…"
 
-#: streamlit_app.py:664
+#: streamlit_app.py:723
 msgid "Thank you for your feedback!"
 msgstr "フィードバックをありがとうございます！"
 
-#: streamlit_app.py:666
+#: streamlit_app.py:725
 msgid "Please fill in all fields."
 msgstr "すべての項目を入力してください。"
 
-#: streamlit_app.py:688
-msgid "Email sent successfully"
-msgstr "メールを発送しました"
+#~ msgid "Enter the password please: "
+#~ msgstr "パスワードを入力してください："
+
+#~ msgid "Incorrect password. Try again."
+#~ msgstr "パスワードが間違っています。再試行してください。"
+
+#~ msgid "Correct password entered."
+#~ msgstr "正しいパスワードが入力されました。"
+
+#~ msgid "🤖 Application"
+#~ msgstr "🤖 アプリ"
+
+#~ msgid "⚙️  Account"
+#~ msgstr "⚙️  設定"
+
+#~ msgid "Email sent successfully"
+#~ msgstr "メールを発送しました"
 
