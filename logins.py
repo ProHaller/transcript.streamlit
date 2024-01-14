@@ -1,5 +1,6 @@
 import streamlit as st
 import smtplib
+import databases
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from streamlit_option_menu import option_menu
@@ -163,6 +164,7 @@ def main():
                 forgot_username()
         elif menu == "Login":
             login()
+    databases.main()
     if st.session_state["authentication_status"]:
         logged_in = st.session_state["authentication_status"]
         return logged_in, st.session_state["authenticator"]

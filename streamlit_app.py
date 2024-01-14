@@ -1,20 +1,25 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import gettext
+import pandas as pd
 import io
 import os
 import smtplib
 from tempfile import mkdtemp
+from dateutil import parser
 import time
 from typing import Literal
 
+import databases
 import logins
 import openai
 from openai import OpenAI
 from pydub import AudioSegment
 from st_audiorec import st_audiorec
 import streamlit as st
+from streamlit_option_menu import option_menu
 import toml
 
 st.set_page_config(
@@ -28,6 +33,8 @@ st.set_page_config(
 # This is a best practice to declare all session states upfront for clarity
 if "password_ok" not in st.session_state:
     st.session_state["password_ok"] = None
+if "user" not in st.session_state:
+    st.session_state["user"] = None
 if "openai_key" not in st.session_state:
     st.session_state["openai_key"] = (
         st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else None
@@ -42,45 +49,7 @@ if "data" not in st.session_state:
 global _  # Declare _ as global at the start of the function
 _ = gettext.gettext  # Default to built-in gettext for English
 
-# if "authenticator" not in st.session_state:
-#     authenticator = logins.initiate()
-# print(st.session_state["authenticator"])
 
-
-# function to decorate and gather the time took by each function
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"Function {func.__name__} took {execution_time} seconds to execute.")
-        return result
-
-    return wrapper
-
-
-def validate_password():
-    password_input = st.text_input(_("Enter the password please: "), type="password")
-    if password_input == st.secrets["PASSWORD"]:
-        st.session_state["password_ok"] = True
-        return True
-    elif password_input:
-        st.error(_("Incorrect password. Try again."))
-        return False
-
-
-def check_password():
-    if not st.session_state["password_ok"]:
-        validate_password()
-        if st.session_state["password_ok"] is True:
-            st.toast(_("Correct password entered."))
-            st.rerun()
-    if st.session_state["password_ok"] is True:
-        return True
-
-
-@timer
 def load_language(lang_code):
     global _  # Declare _ as global at the start of the function
     if lang_code == "en":
@@ -165,7 +134,6 @@ def check_credentials():
                     return True
 
 
-@timer
 def transcription(
     file_path,
     language: str = "en",
@@ -187,7 +155,6 @@ def transcription(
 
 
 # Function to segment the audio file
-@timer
 @st.cache_data
 def segment_audio(audio_file, segment_duration=60000):
     temp_dir = mkdtemp()
@@ -209,7 +176,6 @@ def segment_audio(audio_file, segment_duration=60000):
 
 
 # Function for parallel audio transcription
-@timer
 def parallel_transcribe_audio(
     file_paths,
     language,
@@ -246,7 +212,6 @@ def parallel_transcribe_audio(
     return full_transcript
 
 
-@timer
 def openai_completion(
     input_text: str,
     system_prompt: str = "You are a helpful assistant that always answers in markdown.",
@@ -302,7 +267,6 @@ def get_prompt_choice():
     )
 
 
-@timer
 def record_audio_input():
     file = {}
     recorded_file = st_audiorec()
@@ -312,7 +276,6 @@ def record_audio_input():
         return file
 
 
-@timer
 def upload_file():
     files = []  # list of dictionaries
     uploaded_files = st.file_uploader(
@@ -335,6 +298,15 @@ def upload_file():
     for uf in uploaded_files:
         file_dict = {"name": uf.name, "file": uf}
         files.append(file_dict)
+        if uf.name not in st.session_state["data"]:
+            st.session_state["data"][uf.name] = {
+                "file_id": None,
+                "note": None,
+                "transcript": None,
+            }
+        st.session_state["data"][uf.name]["file_id"] = databases.add_uploaded_file(
+            st.session_state["user"].id, uf.name
+        )
     return files if files else []
 
 
@@ -354,7 +326,6 @@ def upload_reader(uploads):
         st.warning("No files uploaded.")
 
 
-@timer
 def prepare_audio(files):
     # Check if the files list is empty or contains empty dictionaries
     if not files or all(not file_dict for file_dict in files):
@@ -384,7 +355,6 @@ def prepare_audio(files):
     return prepared_files
 
 
-@timer
 def transcribe_form():
     with st.form(key="transcribe_form", clear_on_submit=False, border=True):
         language = get_language_choice()
@@ -407,7 +377,6 @@ def transcribe_form():
         return transcribe_button, language, response_format, prompt
 
 
-@timer
 def secretary_form(prepared_prompt):
     with st.form(key="secretary_form", clear_on_submit=False, border=True):
         secretary_prompt = st.text_area(
@@ -492,7 +461,7 @@ def set_sidebar():
         with col_info:
             # Call the function to display language selector
             language = choose_language("col_info")
-        tab_application, tab_account = st.tabs([_("🤖 Application"), _("⚙️  Account")])
+        tab_application, tab_account = st.tabs(["🤖 Application", "⚙️ Account"])
         with tab_application:
             transcription_param = set_transcription_ui()
             secretary_param = set_secretary_ui()
@@ -503,22 +472,31 @@ def set_sidebar():
         return language, transcription_param, secretary_param  # processed_text
 
 
-@timer
 def transcribe(files, language, prompt, response_format):
-    transcribed_texts = {}
     with st.spinner(_("Wait for it... our AI is listening!")):
         st.image("static/writing.png", width=300)
         for file_name, file in files.items():
+            if file_name not in st.session_state["data"]:
+                st.session_state["data"][file_name] = {
+                    "file_id": None,
+                    "note": None,
+                    "transcript": None,
+                }
             try:
                 transcribed_text = parallel_transcribe_audio(
                     file, language, prompt, response_format
                 )
-                transcribed_texts[file_name] = {"transcript": transcribed_text}
+                st.session_state["data"][file_name]["transcript"] = transcribed_text
             except Exception as e:
                 st.error(_(f"An error occurred during transcription: {e}"))
-        st.session_state["data"].update(transcribed_texts)
+            databases.upsert_transcript(
+                st.session_state["data"][file_name]["file_id"],
+                st.session_state["data"][file_name]["transcript"],
+            )
+            st.toast("upsert done")
         st.success("Done!")
-        return transcribed_texts
+        full_session = st.session_state["data"]
+        return full_session
 
 
 def display_transcription(texts):
@@ -526,11 +504,66 @@ def display_transcription(texts):
     for index, (name, trans) in enumerate(texts.items()):
         if "transcript" in trans and trans["transcript"] is not None:
             with st.expander(f"Transcript from {name}"):
-                file_extension = "srt" if st.session_state["subtitles"] else ""
-                file_name = name_file(name, "transcription", format=file_extension)
-                download(trans["transcript"], file_name, index)
+                download(
+                    name, index
+                )  # Pass only name and index to the download function
                 st.write(trans["transcript"])
                 delete(name, "transcript", f"{name}transcript")
+
+
+# Function to parse datetime
+def parse_datetime(dt_string):
+    return parser.parse(dt_string)
+
+
+# Function to convert data to CSV
+def convert_data(user_data):
+    # Prepare the data list
+    data = []
+
+    # Iterate through each file
+    for file in user_data["files"]:
+        file_name = file["file_name"]
+        for transcript in file["transcripts"]:
+            created_at = parse_datetime(str(transcript["created_at"]))
+            transcript_text = transcript["transcript_text"]
+            # Handle multiple notes
+            for note in file["notes"]:
+                note_text = note["note_text"]
+                data.append(
+                    {
+                        "Upload date": created_at,
+                        "file name": file_name,
+                        "transcript": transcript_text,
+                        "note": note_text,
+                    }
+                )
+
+    # Create DataFrame
+    df = pd.DataFrame(data)
+    st.download_button(
+        _("download"),
+        df.to_csv(),
+        file_name=f"{st.session_state['user'].name}history_data.csv",
+    )
+
+
+def display_history():
+    user_data = databases.get_user_data(st.session_state["user"].username)
+
+    st.title(_("🕰️ History"))
+    # Iterate through files
+    for file in user_data["files"]:
+        # Format the date for the expander title
+        date_str = file["created_at"].strftime("%Y-%m-%d")
+        with st.expander(f"Date: {date_str} - {file['file_name']}"):
+            # Display file details
+            st.subheader("Transcripts")
+            st.table(file["transcripts"])
+
+            st.subheader("Notes")
+            st.table(file["notes"])
+    convert_data(user_data)
 
 
 def display_notes(notes):
@@ -540,64 +573,90 @@ def display_notes(notes):
             "note" in note_info and note_info["note"]
         ):  # Check if note exists and is not empty
             with st.expander(_(f"Secretary note from {name}")):
-                file_name = name_file(name, "notes")
-                download(note_info["note"], file_name, index)
+                download(
+                    name, index
+                )  # Pass only name and index to the download function
                 st.write(note_info["note"])
                 delete(name, "note", f"{name}notes")
 
 
-@timer
 def secretary_process(
-    transcribed_texts: dict,
     secretary_prompt: str,
     model: str,
     temperature: float,
 ):
-    notes = transcribed_texts or {}
-    with st.spinner(_("Wait for it... our AI is thinking!")):
-        if transcribed_texts:
-            for name, trans in transcribed_texts.items():
-                completion = ""
-                print("name\n", name, "\ntrans\n", trans)
-                if "transcript" in trans:
-                    prompt = f"```\n{trans['transcript']}``` \n{secretary_prompt}"
-                else:
-                    prompt = secretary_prompt
-                completion = openai_completion(
-                    input_text=prompt, model=model, temperature=temperature
-                )
-                notes[name]["note"] = completion
-                print(notes)
+    notes = st.session_state["data"]
+
+    def process_completion(file_name, file_data):
+        if "transcript" in file_data and file_data["transcript"] is not None:
+            prompt = f"```\n{file_data['transcript']}``` \n{secretary_prompt}"
         else:
             prompt = secretary_prompt
+        completion = openai_completion(
+            input_text=prompt, model=model, temperature=temperature
+        )
+        return file_name, completion
+
+    with st.spinner(_("Wait for it... our AI is thinking!")):
+        st.image("static/thinking.png", width=300)
+        if notes:
+            # Parallel processing using ThreadPoolExecutor
+            with ThreadPoolExecutor() as executor:
+                future_to_file = {
+                    executor.submit(process_completion, file_name, file_data): file_name
+                    for file_name, file_data in notes.items()
+                }
+                for future in as_completed(future_to_file):
+                    file_name = future_to_file[future]
+                    try:
+                        completion = future.result()
+                        notes[completion[0]]["note"] = completion[1]
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
+        else:
+            prompt = secretary_prompt
+            name = _("AI chat")
+            notes[name] = {"file_id": 999999999, "transcript": None, "note": None}
             completion = openai_completion(
                 input_text=prompt, model=model, temperature=temperature
             )
-            notes[_("AI chat")] = {}
-            notes[_("AI chat")]["note"] = completion
+            notes[name]["note"] = completion
         st.session_state["data"].update(notes)
-    return notes
+        full_notes = st.session_state["data"]
+        for file_name, file_data in full_notes.items():
+            if "note" in file_data and file_data["note"] is not None:
+                databases.upsert_note(file_data["file_id"], file_data["note"])
+                st.toast("upserted note")
+    return full_notes
 
 
-def name_file(file_name, *args, format="txt"):
-    file_name_without_extension = file_name.rsplit(".", 1)[0]
-    additional_parts = "_".join(args)  # Joining args with underscore as a separator
-    if additional_parts:
-        return f"{file_name_without_extension}_{additional_parts}.{format}"
-    else:
-        return f"{file_name_without_extension}.{format}"
+def download(file_name, index):
+    # Check if the file_name exists in the session state data
+    if file_name in st.session_state["data"]:
+        file_data = st.session_state["data"][file_name]
 
+        # Extract the transcript or note, based on what you want to download
+        data_to_download = file_data.get("transcript") or file_data.get("note")
 
-@timer
-def download(file, file_name, index):
-    unique_key = f"download_button_{file_name}_{index}"
-    st.download_button(
-        label=_("Download"),
-        data=file,
-        file_name=file_name,
-        key=unique_key,
-        type="primary",
-    )
+        if data_to_download:
+            # Determine the file format based on the type of data
+            file_format = (
+                "srt"
+                if st.session_state["subtitles"] and file_data["transcript"] is not None
+                else "txt"
+            )
+            download_file_name = f"{file_name}_transcript.{file_format}"
+
+            # Unique key for the download button, to avoid conflicts in Streamlit
+            unique_key = f"download_button_{file_name}_{index}_{datetime.now()}"
+
+            st.download_button(
+                label=_("Download"),
+                data=data_to_download,
+                file_name=download_file_name,
+                key=unique_key,
+                type="primary",
+            )
 
 
 def delete(file_name, key, index):
@@ -685,12 +744,10 @@ def send_email(sender, subject, body_text):
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.send_message(message)
 
-    print(_("Email sent successfully"))
+    print("Email sent successfully")
 
 
 def main():
-    if not check_password():
-        st.stop()
     if not st.session_state["openai_key"] and not check_credentials():
         st.stop()
 
@@ -714,7 +771,6 @@ def main():
     if secretary_param:
         is_festive, secretary_prompt, model, temperature = secretary_param
         notes = secretary_process(
-            st.session_state["data"] if st.session_state["data"] else {},
             secretary_prompt,
             model,
             temperature,
@@ -724,12 +780,14 @@ def main():
             st.balloons()
 
     # Display Logic
-    if st.session_state["data"]:
+    if "data" in st.session_state:
         data_has_transcript = any(
-            "transcript" in item for item in st.session_state["data"].values()
+            "transcript" in item and item["transcript"]
+            for item in st.session_state["data"].values()
         )
         data_has_note = any(
-            "note" in item for item in st.session_state["data"].values()
+            "note" in item and item["note"]
+            for item in st.session_state["data"].values()
         )
 
         if data_has_transcript and data_has_note:
@@ -743,6 +801,9 @@ def main():
         elif data_has_note:
             display_notes(st.session_state["data"])
             st.image("static/thumbsup.png", width=300)
+
+    if st.button(_("🕰️ History"), key="historybutton"):
+        display_history()
 
 
 if __name__ == "__main__":
