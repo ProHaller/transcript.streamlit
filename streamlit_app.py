@@ -42,7 +42,7 @@ if "openai_key" not in st.session_state:
 if "readme_displayed" not in st.session_state:
     st.session_state["readme_displayed"] = False
 if "subtitles" not in st.session_state:
-    st.session_state["subtitles"] = False
+    st.session_state["subtitles"] = None
 if "data" not in st.session_state:
     st.session_state["data"] = {}
 
@@ -505,7 +505,7 @@ def display_transcription(texts):
         if "transcript" in trans and trans["transcript"] is not None:
             with st.expander(f"Transcript from {name}"):
                 download(
-                    name, index
+                    name, trans["transcript"], st.session_state["subtitles"], index
                 )  # Pass only name and index to the download function
                 st.write(trans["transcript"])
                 delete(name, "transcript", f"{name}transcript")
@@ -574,7 +574,10 @@ def display_notes(notes):
         ):  # Check if note exists and is not empty
             with st.expander(_(f"Secretary note from {name}")):
                 download(
-                    name, index
+                    name,
+                    note_info["note"],
+                    "note",
+                    index,
                 )  # Pass only name and index to the download function
                 st.write(note_info["note"])
                 delete(name, "note", f"{name}notes")
@@ -630,33 +633,30 @@ def secretary_process(
     return full_notes
 
 
-def download(file_name, index):
+# Todo: Downloads only the transcript.
+def download(file_name, content, type, index):
     # Check if the file_name exists in the session state data
     if file_name in st.session_state["data"]:
-        file_data = st.session_state["data"][file_name]
+        file_data = content
 
-        # Extract the transcript or note, based on what you want to download
-        data_to_download = file_data.get("transcript") or file_data.get("note")
+        # Determine the file format based on the type of data
+        file_format = (
+            "srt" if st.session_state["subtitles"] == "srt" and type == "srt" else "txt"
+        )
+        download_file_name = (
+            f"{file_name}_{type if type != 'srt' else 'trasncript'}.{file_format}"
+        )
 
-        if data_to_download:
-            # Determine the file format based on the type of data
-            file_format = (
-                "srt"
-                if st.session_state["subtitles"] and file_data["transcript"] is not None
-                else "txt"
-            )
-            download_file_name = f"{file_name}_transcript.{file_format}"
+        # Unique key for the download button, to avoid conflicts in Streamlit
+        unique_key = f"download_button_{file_name}_{index}_{datetime.now()}"
 
-            # Unique key for the download button, to avoid conflicts in Streamlit
-            unique_key = f"download_button_{file_name}_{index}_{datetime.now()}"
-
-            st.download_button(
-                label=_("Download"),
-                data=data_to_download,
-                file_name=download_file_name,
-                key=unique_key,
-                type="primary",
-            )
+        st.download_button(
+            label=_("Download"),
+            data=file_data,
+            file_name=download_file_name,
+            key=unique_key,
+            type="primary",
+        )
 
 
 def delete(file_name, key, index):
