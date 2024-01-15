@@ -9,3 +9,4 @@ smtp-test.py
 __pycache__
 generate_keys.py
 users.csv
+config.yaml

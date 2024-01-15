@@ -20,7 +20,7 @@ from datetime import datetime
 DB_URL = st.secrets["DATABASE_URL"]
 
 # Setting up SQLAlchemy
-engine = create_engine(DB_URL)
+engine = create_engine(DB_URL, pool_pre_ping=True)
 Session = sessionmaker(engine)
 Base = declarative_base()
 
