@@ -13,8 +13,9 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm.exc import NoResultFound
 import streamlit as st
 from datetime import datetime
+import yaml
+from yaml import load
 
-# from datetime import datetime
 
 # Database connection details
 DB_URL = st.secrets["DATABASE_URL"]
@@ -33,6 +34,7 @@ class User(Base):
     username = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False)
     name = Column(String(255), nullable=False, default="Unknown")
+    password = Column(String(255), nullable=False, default="Unknown")
 
 
 class UploadedFile(Base):
@@ -62,6 +64,35 @@ class Note(Base):
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now())
     file = relationship("UploadedFile")
+
+
+def load_users():
+    with Session() as session:
+        users = session.query(User).all()  # Fetch all users
+
+        # Construct the data structure for YAML
+        yaml_data = {
+            "cookie": {
+                "expiry_days": 30,
+                "key": "Roland_is_awesome_and_so_are_you_if_you_read_this",
+                "name": "Roland_delicious_cookie",
+            },
+            "credentials": {"usernames": {}},
+            "preauthorized": {"emails": []},
+        }
+
+        for user in users:
+            yaml_data["credentials"]["usernames"][user.username] = {
+                "email": user.email,
+                "name": user.name,
+                "password": user.password,  # Assuming you're not storing plaintext passwords
+            }
+
+        # Write to config.yaml
+        with open("config.yaml", "w") as file:
+            yaml.dump(yaml_data, file)
+
+        return yaml_data  # Return the data structure, in case it's needed
 
 
 # Function to get user info
@@ -206,33 +237,41 @@ def upsert_note(file_id, note_text):
         return note.id if note else new_note.id
 
 
-def upsert_user(username, email, name):
+def upsert_user(username, email, name, password):
     with Session() as session:
         # Check if the user exists and if the data is the same
         existing_user = session.query(User).filter(User.username == username).first()
 
         if existing_user:
             # Update the user if the email or name is different
-            if existing_user.email != email or existing_user.name != name:
+            if (
+                existing_user.email != email
+                or existing_user.name != name
+                or existing_user.password != password
+            ):
                 existing_user.email = email
                 existing_user.name = name
+                existing_user.password = password
                 session.commit()
             return existing_user
         else:
             # Insert new user as it does not exist
-            new_user = User(username=username, email=email, name=name)
+            new_user = User(
+                username=username, email=email, name=name, password=password
+            )
             session.add(new_user)
             session.commit()
             return new_user
 
 
 # Function to update user information
-def update_user_info(user_id, email, name):
+def update_user_info(user_id, email, name, password):
     with Session() as session:
         user = session.query(User).filter(User.id == user_id).first()
         if user:
             user.email = email
             user.name = name
+            user.password = password
             session.commit()
 
 
@@ -247,11 +286,15 @@ def set_user():
             credentials["usernames"][st.session_state["authenticator"].username][
                 "name"
             ],
+            credentials["usernames"][st.session_state["authenticator"].username][
+                "password"
+            ],
         )
         st.session_state["user"] = user_info
 
 
 def main():
+    load_users()
     set_user()
     # get user Data
     # todo Clean the data and display in on demand.
