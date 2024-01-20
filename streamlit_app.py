@@ -750,10 +750,6 @@ def send_email(sender, subject, body_text):
 
 def main():
     databases.load_users()
-    st.image("static/sorry.png", width=300)
-    st.warning(
-        "I apologize for the login troubles, You can reset your password with the fogot password function."
-    )
     if not st.session_state["openai_key"] and not check_credentials():
         st.stop()
 
