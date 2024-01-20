@@ -35,6 +35,10 @@ def initiate():
 
 
 def login():
+    st.image("static/sorry.png", width=300)
+    st.warning(
+        "I apologize for the login troubles, You can reset your password with the fogot password function."
+    )
     st.session_state["authenticator"].login("Login", "main")
     # Handling different authentication states
     if st.session_state["authentication_status"] is False:
