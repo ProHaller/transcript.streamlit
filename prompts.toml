@@ -12,3 +12,6 @@ description = "Scan through the recording transcript and extract all questions a
 
 ["Ideas And Suggestions Compilation"]
 description = "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it if specified, and the context in which it was discussed. Indicate any feedback or reactions from others regarding these suggestions."
+
+["Regtech Hearing"]
+description = "文章を分析して以下の質問項目に答えてください。前提：この文章はRegTechコンソーシアムに参加している企業に対して、コンソーシアムを運営するコーディネーターが取材したものの書き起こしです。 質問項目 インタビュー対象者がコンソーシアムやデジタル庁に期待することは何ですか？ インタビュー対象者がRegTech（アナログ規制）政策に対してどのような感想をもっていますか？ インタビュー対象者はコンソーシアムを活性化させるメンバーとして何にコミットメントしてくれそうですか？"
