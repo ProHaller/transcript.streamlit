@@ -5,13 +5,13 @@ description = ""
 description = "Identify and list the main topics and key points discussed in this recording transcript. Focus on decisions made, action items assigned, and any deadlines mentioned. Provide a brief summary for each topic, ensuring the essence of the discussion is captured clearly and concisely."
 
 ["Meeting Summary And Action Items"]
-description = "Create a concise summary of the meeting, including the date, participants, and purpose. Detail the major decisions and conclusions reached. List out the action items assigned, specifying who is responsible for each task and the deadlines, if mentioned. Be concise."
+description = "Create a concise summary of the meeting. Detail the major decisions and conclusions reached. List out the action items assigned, specifying if available who is responsible for each task and the deadlines. Be concise."
 
 ["Question And Answer Extraction"]
-description = "Scan through the recording transcript and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues."
+description = "Scan through the recording transcript and extract all questions asked, along with the responses given. Organize them in a question-and-answer format. Ensure clarity in how the answers address the questions, and highlight any follow-up actions or unresolved issues if pertinent."
 
 ["Ideas And Suggestions Compilation"]
-description = "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, noting who proposed it if specified, and the context in which it was discussed. Indicate any feedback or reactions from others regarding these suggestions."
+description = "Identify all ideas, suggestions, and proposals mentioned in the recording transcript. Summarize each idea, and the context in which it was discussed. Indicate, if any, feedback or reactions from others regarding these suggestions."
 
 ["Regtech Hearing"]
 description = "文章を分析して以下の質問項目に答えてください。前提：この文章はRegTechコンソーシアムに参加している企業に対して、コンソーシアムを運営するコーディネーターが取材したものの書き起こしです。 質問項目 インタビュー対象者がコンソーシアムやデジタル庁に期待することは何ですか？ インタビュー対象者がRegTech（アナログ規制）政策に対してどのような感想をもっていますか？ インタビュー対象者はコンソーシアムを活性化させるメンバーとして何にコミットメントしてくれそうですか？"
