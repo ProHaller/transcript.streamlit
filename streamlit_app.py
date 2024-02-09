@@ -216,7 +216,7 @@ def openai_completion(
     input_text: str,
     system_prompt: str = "You are a helpful assistant that always answers in markdown.",
     format="text",
-    model: str = "gpt-4-1106-preview",
+    model: str = "gpt-4-0125-preview",
     temperature: float = 0,
 ):
     client = OpenAI()
@@ -389,7 +389,7 @@ def secretary_form(prepared_prompt):
         )
         model = st.radio(
             _("Model"),
-            ["gpt-4-1106-preview", "gpt-3.5-turbo-1106"],
+            ["gpt-4-0125-preview", "gpt-3.5-turbo-0125"],
             captions=[_("Best for most tasks"), _("Best for formatting")],
             horizontal=True,
         )
