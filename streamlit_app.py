@@ -37,7 +37,7 @@ if "password_ok" not in st.session_state:
 if "user" not in st.session_state:
     st.session_state["user"] = None
 
-if "openai_key" not in st.session_state:
+if "deepgram_key" not in st.session_state:
     st.session_state["deepgram_key"] = (
         st.secrets["DEEPGRAM_API_KEY"] if "DEEPGRAM_API_KEY" in st.secrets else None
     )
