@@ -230,7 +230,7 @@ def deepgram_transcribe(file_path, language, prompt, response_format, diarize=Tr
         source = {"buffer": audio_buffer, "mimetype": mimetype}
 
         options = PrerecordedOptions(
-            model="nova-2",
+            model="whisper-large",
             smart_format=True,
             language=language,
             detect_language=True if language == "auto" else False,
@@ -283,15 +283,15 @@ def openai_completion(
 # Function to display full language selector and return iso code.
 def get_language_choice():
     language_options = {
-        "Automatic": "auto",
-        "English": "en",
         "Japanese": "ja",
+        "English": "en",
         "French": "fr",
         "Spanish": "es",
         "Thai": "th",
         "Arabic": "ar",
         "Chinese": "zh",
         "Korean": "ko",
+        "Automatic": "auto",
     }
     selected_language_name = st.selectbox(
         _("What is the language of the audio?"),
@@ -409,7 +409,7 @@ def transcribe_form():
         language = get_language_choice()
         response_format = "srt" if st.toggle(_("Transcribe to subtitles")) else "text"
         st.session_state["subtitles"] = response_format
-        diarize = st.checkbox(_("Enable speaker diarization"), value=True)
+        diarize = st.checkbox(_("Enable speaker diarization"), value=False)
         prompt = st.text_area(
             _("Describe the audio (optional):"),
             placeholder=_(
