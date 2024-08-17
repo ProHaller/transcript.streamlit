@@ -11,7 +11,6 @@ import smtplib
 from tempfile import mkdtemp
 from dateutil import parser
 from typing import Literal
-from dotenv import load_dotenv
 
 import databases
 import logins
@@ -23,10 +22,6 @@ from st_audiorec import st_audiorec
 import streamlit as st
 from streamlit_option_menu import option_menu
 import toml
-
-load_dotenv()
-DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
-
 
 st.set_page_config(
     page_title="_(Roland'sTool)",
@@ -46,10 +41,10 @@ if "openai_key" not in st.session_state:
     st.session_state["deepgram_key"] = (
         st.secrets["DEEPGRAM_API_KEY"] if "DEEPGRAM_API_KEY" in st.secrets else None
     )
-# if "openai_key" not in st.session_state:
-#     st.session_state["openai_key"] = (
-#         st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else None
-#     )
+if "openai_key" not in st.session_state:
+    st.session_state["openai_key"] = (
+        st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else None
+    )
 if "readme_displayed" not in st.session_state:
     st.session_state["readme_displayed"] = False
 if "subtitles" not in st.session_state:
