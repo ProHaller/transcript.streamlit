@@ -132,3 +132,4 @@ XlsxWriter==3.1.9
 yarg==0.1.9
 yaspin==2.5.0
 zipp==3.17.0
+deepgram-sdk==2.11.0

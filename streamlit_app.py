@@ -3,24 +3,30 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import gettext
+import deepgram
 import pandas as pd
 import io
 import os
 import smtplib
 from tempfile import mkdtemp
 from dateutil import parser
-import time
 from typing import Literal
+from dotenv import load_dotenv
 
 import databases
 import logins
 import openai
 from openai import OpenAI
+from deepgram import DeepgramClient, PrerecordedOptions, FileSource
 from pydub import AudioSegment
 from st_audiorec import st_audiorec
 import streamlit as st
 from streamlit_option_menu import option_menu
 import toml
+
+load_dotenv()
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
+
 
 st.set_page_config(
     page_title="_(Roland'sTool)",
@@ -35,10 +41,15 @@ if "password_ok" not in st.session_state:
     st.session_state["password_ok"] = None
 if "user" not in st.session_state:
     st.session_state["user"] = None
+
 if "openai_key" not in st.session_state:
-    st.session_state["openai_key"] = (
-        st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else None
+    st.session_state["deepgram_key"] = (
+        st.secrets["DEEPGRAM_API_KEY"] if "DEEPGRAM_API_KEY" in st.secrets else None
     )
+# if "openai_key" not in st.session_state:
+#     st.session_state["openai_key"] = (
+#         st.secrets["OPENAI_API_KEY"] if "OPENAI_API_KEY" in st.secrets else None
+#     )
 if "readme_displayed" not in st.session_state:
     st.session_state["readme_displayed"] = False
 if "subtitles" not in st.session_state:
@@ -112,7 +123,30 @@ def display_readme(lang_code="en"):
             st.markdown(readme_content)
 
 
-def check_credentials():
+def check_deepgram_credentials():
+    with st.sidebar:
+        if "DEEPGRAM_API_KEY" in st.secrets:
+            st.toast(_("The Deepgram credentials have been entered for you!"))
+            st.toast(_("You are all set!"))
+            os.environ["DEEPGRAM_API_KEY"] = st.secrets["DEEPGRAM_API_KEY"]
+            st.session_state["deepgram_key"] = st.secrets["DEEPGRAM_API_KEY"]
+            return True
+        else:
+            if not st.session_state.get("deepgram_key"):
+                deepgram_api_key = st.text_input(
+                    _("Enter Deepgram API token:"), type="password"
+                )
+                if not deepgram_api_key:
+                    st.warning(_("Please enter your credentials!"), icon="⚠️")
+                    return False
+                else:
+                    os.environ["DEEPGRAM_API_KEY"] = deepgram_api_key
+                    st.session_state["deepgram_key"] = deepgram_api_key
+                    st.success(_("Proceed to uploading your audio file!"), icon="👉")
+                    return True
+
+
+def check_openai_credentials():
     with st.sidebar:
         if "OPENAI_API_KEY" in st.secrets:
             st.toast(_("The OpenAI credentials have been entered for you!"))
@@ -175,41 +209,58 @@ def segment_audio(audio_file, segment_duration=60000):
     return segments
 
 
-# Function for parallel audio transcription
-def parallel_transcribe_audio(
-    file_paths,
-    language,
-    prompt,
-    response_format,
-    max_workers=10,
-):
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(
-                transcription,
-                file_path,
-                language,
-                prompt,
-                response_format,
-            ): i
-            for i, file_path in enumerate(file_paths)
-        }
-    transcriptions = {}
-    for future in futures:
-        try:
-            transcription_data = future.result()
-            index = futures[future]
-            transcriptions[index] = transcription_data
-        except Exception as e:
-            st.error(_(f"An error occurred during transcription: {e}"))
+def deepgram_transcribe(file_path, language, prompt, response_format, diarize=True):
+    if DEEPGRAM_API_KEY is None:
+        st.error("Deepgram API key is not set.")
+        return None
 
-    sorted_transcription_texts = [
-        transcriptions[i]
-        for i in sorted(transcriptions)
-        if transcriptions[i] is not None
-    ]
-    full_transcript = " ".join(sorted_transcription_texts)
-    return full_transcript
+    deepgram_client = DeepgramClient(DEEPGRAM_API_KEY)
+    try:
+        # Read the file content into memory
+        with open(file_path, "rb") as audio_file:
+            audio_data = audio_file.read()
+
+        # Create a file-like object from the audio data
+        audio_buffer = io.BytesIO(audio_data)
+
+        # Determine the mimetype based on the file extension
+        mimetype = "audio/wav"  # default
+        if file_path.lower().endswith(".mp3"):
+            mimetype = "audio/mpeg"
+        elif file_path.lower().endswith(".flac"):
+            mimetype = "audio/flac"
+        # Add more mime types as needed
+
+        source = {"buffer": audio_buffer, "mimetype": mimetype}
+
+        options = PrerecordedOptions(
+            model="nova-2",
+            smart_format=True,
+            language=language,
+            detect_language=True if language == "auto" else False,
+            diarize=diarize,
+        )
+
+        response = deepgram_client.listen.prerecorded.v("1").transcribe_file(
+            source, options
+        )
+
+        # Log the detected language if auto-detection was used
+        if language == "auto" and response.results.detected_language:
+            st.info(f"Detected language: {response.results.detected_language}")
+
+        # Process the response to format paragraphs with speaker labels
+        formatted_transcript = ""
+        for paragraph in (
+            response.results.channels[0].alternatives[0].paragraphs.paragraphs
+        ):
+            speaker = f"Speaker {paragraph.speaker}: " if diarize else ""
+            formatted_transcript += f"{speaker}{paragraph.sentences[0].text}\n\n"
+
+        return formatted_transcript.strip()
+    except Exception as e:
+        st.error(f"An error occurred during transcription: {e}")
+        return None
 
 
 def openai_completion(
@@ -236,6 +287,7 @@ def openai_completion(
 # Function to display full language selector and return iso code.
 def get_language_choice():
     language_options = {
+        "Automatic": "auto",
         "English": "en",
         "Japanese": "ja",
         "French": "fr",
@@ -361,6 +413,7 @@ def transcribe_form():
         language = get_language_choice()
         response_format = "srt" if st.toggle(_("Transcribe to subtitles")) else "text"
         st.session_state["subtitles"] = response_format
+        diarize = st.checkbox(_("Enable speaker diarization"), value=True)
         prompt = st.text_area(
             _("Describe the audio (optional):"),
             placeholder=_(
@@ -375,7 +428,7 @@ def transcribe_form():
             type="primary",
             use_container_width=True,
         )
-        return transcribe_button, language, response_format, prompt
+        return transcribe_button, language, response_format, prompt, diarize
 
 
 def secretary_form(prepared_prompt):
@@ -426,9 +479,11 @@ def set_transcription_ui():
     if files:  # Check if there are any files (uploaded or recorded)
         upload_reader(files)
         segments = prepare_audio(files)
-        transcribe_button_clicked, language, response_format, prompt = transcribe_form()
+        transcribe_button_clicked, language, response_format, prompt, diarize = (
+            transcribe_form()
+        )
         if transcribe_button_clicked:
-            return segments, language, prompt, response_format
+            return segments, language, prompt, response_format, diarize
     else:
         transcribe_button_warning = st.button(
             _("Transcribe Audio"),
@@ -473,10 +528,11 @@ def set_sidebar():
         return language, transcription_param, secretary_param  # processed_text
 
 
-def transcribe(files, language, prompt, response_format):
+def transcribe(files, language, prompt, response_format, diarize):
     with st.spinner(_("Wait for it... our AI is listening!")):
         st.image("static/writing.png", width=300)
-        for file_name, file in files.items():
+
+        for file_name, file_segments in files.items():
             if file_name not in st.session_state["data"]:
                 st.session_state["data"][file_name] = {
                     "file_id": None,
@@ -484,20 +540,29 @@ def transcribe(files, language, prompt, response_format):
                     "transcript": None,
                 }
             try:
-                transcribed_text = parallel_transcribe_audio(
-                    file, language, prompt, response_format
+                full_transcript = ""
+                for segment in file_segments:
+                    segment_transcript = deepgram_transcribe(
+                        segment, language, prompt, response_format, diarize
+                    )
+                    if segment_transcript:
+                        full_transcript += segment_transcript + "\n\n"
+
+                st.session_state["data"][file_name]["transcript"] = (
+                    full_transcript.strip()
                 )
-                st.session_state["data"][file_name]["transcript"] = transcribed_text
             except Exception as e:
                 st.error(_(f"An error occurred during transcription: {e}"))
-            databases.upsert_transcript(
-                st.session_state["data"][file_name]["file_id"],
-                st.session_state["data"][file_name]["transcript"],
-            )
-            st.toast("upsert done")
+
+            if st.session_state["data"][file_name]["transcript"]:
+                databases.upsert_transcript(
+                    st.session_state["data"][file_name]["file_id"],
+                    st.session_state["data"][file_name]["transcript"],
+                )
+                st.toast("upsert done")
+
         st.success("Done!")
-        full_session = st.session_state["data"]
-        return full_session
+        return st.session_state["data"]
 
 
 def display_transcription(texts):
@@ -750,7 +815,7 @@ def send_email(sender, subject, body_text):
 
 def main():
     databases.load_users()
-    if not st.session_state["openai_key"] and not check_credentials():
+    if not st.session_state["deepgram_key"] and not check_deepgram_credentials():
         st.stop()
 
     logged_in = logins.main()
@@ -765,8 +830,10 @@ def main():
 
     # Transcription
     if transcription_param:
-        files, language, response_format, prompt = transcription_param
-        transcribed_texts = transcribe(files, language, response_format, prompt)
+        files, language, response_format, prompt, diarize = transcription_param
+        transcribed_texts = transcribe(
+            files, language, response_format, prompt, diarize
+        )
         st.session_state["data"].update(transcribed_texts)
 
     # Secretary Processing
@@ -774,7 +841,7 @@ def main():
         is_festive, secretary_prompt, model, temperature = secretary_param
         notes = secretary_process(
             secretary_prompt,
-            model,
+            (model if model else "gpt-4o"),
             temperature,
         )
         st.session_state["data"].update(notes)
