@@ -205,6 +205,7 @@ def segment_audio(audio_file, segment_duration=60000):
 
 
 def deepgram_transcribe(file_path, language, prompt, response_format, diarize=True):
+    DEEPGRAM_API_KEY = st.session_state.get("deepgram_key")
     if DEEPGRAM_API_KEY is None:
         st.error("Deepgram API key is not set.")
         return None
